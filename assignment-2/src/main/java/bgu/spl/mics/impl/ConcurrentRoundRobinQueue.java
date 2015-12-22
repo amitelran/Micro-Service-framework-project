@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ConcurrentRoundRobinQueue<T> extends ConcurrentLinkedQueue<T> {
-//shpitz
+//melech
 	/**
 	 * 
 	 */
