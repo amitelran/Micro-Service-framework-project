@@ -29,13 +29,13 @@ public class Receipt {
 	public int getAmountSold(){return amountSold;}
 	
 	public void print(){
-		System.out.printf("%s\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%s\n","======================Shoe Sale Receipt======================="
-						,"|  Shoe Type: "+shoeType+" (Quantity: "+amountSold+")"
+		System.out.printf("%s\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%s\n","======================Shoe Sale Receipt========================"
+						, "|  Shoe Type: "+shoeType+" (Quantity: "+amountSold+")"
 						, "|  Seller: "+seller
 						, "|  Customer: "+customer
 						, "|  On discount: " + ((discount) ? "Yes" : "No")
 						, "|  Requested on "+requestTick+" tick, issued on "+issuedTick+" tick"
-						, "==============================================================","|s");
+						, "===============================================================","|s");
 	}
 
 }
