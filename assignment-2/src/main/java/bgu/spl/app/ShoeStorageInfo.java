@@ -20,10 +20,14 @@ public class ShoeStorageInfo {
 		return discountedAmount;
 	}
 	
+	public String getName(){
+		return shoeType;
+	}
+	
 	public synchronized void sellShoe() throws Exception{
 		if (amountOnStorage>0)
 			amountOnStorage--;
-		else throw new Exception("No shoes on storage");
+		else throw new Exception("No shoes from that type left on storage");
 	}
 	
 	public synchronized void sellDiscountedShoe() throws Exception{
