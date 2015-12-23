@@ -1,6 +1,5 @@
 package bgu.spl.app;
 
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -93,17 +92,23 @@ public class Store {
 	 
 	 public void print(){
 		 int i=1;
-		 System.out.println("=========Storage Info=========");
+		 System.out.println("============================Store Info============================");
 		 if(shoesInfo.isEmpty())
-			 System.out.println("No shoes on storage!");
+			 System.out.println("No shoes on storage yet.");
 		 else{
 			 for (ShoeStorageInfo shoe : shoesInfo.values()){
-				 System.out.print("Shoe Model #"+i+":\n\t");
+				 System.out.print("Stock: Shoe Model #"+i+":\n\t");
 				 shoe.print();
 				 i++;
 			 }
 		 }
-		 System.out.println("==============================");
+		 if(!issuedReceipts.isEmpty()){
+			 System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+			 for (Receipt rec : issuedReceipts.values()){
+				 rec.print();
+			 }
+		 }
+		 System.out.println("==================================================================");
 	 }
 	 
 }
