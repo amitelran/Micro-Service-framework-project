@@ -38,6 +38,14 @@ public class ShoeStorageInfo {
 		else throw new Exception("No discounted shoes on storage");
 	}
 	
+	public synchronized void addAmount(int addToAmount){
+		amountOnStorage += addToAmount;
+	}
+	
+	public synchronized void addDiscountedAmount(int addToDiscountedAmount){
+		discountedAmount +=addToDiscountedAmount;
+	}
+	
 	
 }
 
