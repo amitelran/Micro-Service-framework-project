@@ -17,7 +17,7 @@ public class Store {
 	        return SingletonHolder.instance;
 	    }
 	 
-	 public Store(){
+	 private Store(){
 		 shoesInfo=new ConcurrentHashMap<String,ShoeStorageInfo>();
 		 issuedReceipts=new ConcurrentHashMap<String,Receipt>();
 	 }
@@ -34,8 +34,8 @@ public class Store {
 	 
 	 public BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
 		 BuyResult result;
-		 if (shoesInfo.containsKey(shoeType)){
-			 ShoeStorageInfo shoe = shoesInfo.get(shoeType);
+		 ShoeStorageInfo shoe = shoesInfo.get(shoeType);
+		 if (shoe!=null&&shoe.getAmountOnStorage()>0){
 			 if (onlyDiscount){								//checks for only discounted shoe
 				 if (shoe.getDiscountedAmountOnStorage()>0){
 					 shoe.sellDiscountedShoe();
@@ -92,9 +92,17 @@ public class Store {
 	 }
 	 
 	 public void print(){
-		 for (ShoeStorageInfo shoe : shoesInfo){
-			 
+		 int i=1;
+		 System.out.println("=========Storage Info=========");
+		 if(shoesInfo.isEmpty())
+			 System.out.println("No shoes on storage!");
+		 else{
+			 for (ShoeStorageInfo shoe : shoesInfo.values()){
+				 System.out.print("Shoe Model #"+i+":\n\t");
+				 shoe.print();
+			 }
 		 }
+		 System.out.println("==============================");
 	 }
 	 
 }

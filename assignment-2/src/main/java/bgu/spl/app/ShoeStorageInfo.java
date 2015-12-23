@@ -46,6 +46,9 @@ public class ShoeStorageInfo {
 		discountedAmount +=addToDiscountedAmount;
 	}
 	
+	public void print(){
+		System.out.println("Shoe Type: "+shoeType+" | Amount on storage: "+amountOnStorage+" | Amount on discount: "+discountedAmount);
+	}
 	
 }
 
