@@ -4,13 +4,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.impl.MessageBusImpl;
 
 public class TimeService extends MicroService {
 	private int time;
 	private int speed;
 	private int duration;
 	private Timer timer;
+	TimeService x=this;
 	
 	/**
 	 * 
@@ -23,7 +23,6 @@ public class TimeService extends MicroService {
 		speed=s;
 		duration=d;
 		timer=new Timer();
-		// TODO Auto-generated constructor stub
 	}
 	
 	class Ticker extends TimerTask {
@@ -32,9 +31,9 @@ public class TimeService extends MicroService {
 		public void run() {
 			time++;
 			if(time<duration)
-				MessageBusImpl.getInstance().sendBroadcast(new TickBroadcast(time));
+				TimeService.this.sendBroadcast(new TickBroadcast(time));
 			else{
-				MessageBusImpl.getInstance().sendBroadcast(new TerminationBroadcast());
+				TimeService.this.sendBroadcast(new TerminationBroadcast());
 				this.cancel();
 			}
 		}
@@ -43,7 +42,7 @@ public class TimeService extends MicroService {
 
 	@Override
 	protected void initialize() {
-		timer.schedule(new Ticker(), speed, speed);
+		timer.scheduleAtFixedRate(new Ticker(), speed, speed);
 	}
 
 }
