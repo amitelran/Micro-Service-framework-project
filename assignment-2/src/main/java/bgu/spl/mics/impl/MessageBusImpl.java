@@ -14,9 +14,9 @@ import bgu.spl.mics.RequestCompleted;
 
 public class MessageBusImpl implements MessageBus {
 	
-	private Map<MicroService,ConcurrentLinkedQueue<Message>> registeredServices;
-	private Map<Class<? extends Message>,ConcurrentRoundRobinQueue<MicroService>> messageSubscriptions;
-	private Map<Request<?>,MicroService> requesterMicroServices;
+	private Map<MicroService,ConcurrentLinkedQueue<Message>> registeredServices;		//each micro service with it's own messages queue
+	private Map<Class<? extends Message>,ConcurrentRoundRobinQueue<MicroService>> messageSubscriptions;		//each message with it's round robin queue
+	private Map<Request<?>,MicroService> requesterMicroServices;		//each request with it's requester to respond with result
 	
     private static class SingletonHolder {
         private static MessageBusImpl instance = new MessageBusImpl();
