@@ -100,6 +100,7 @@ public class Store {
 			 for (ShoeStorageInfo shoe : shoesInfo.values()){
 				 System.out.print("Shoe Model #"+i+":\n\t");
 				 shoe.print();
+				 i++;
 			 }
 		 }
 		 System.out.println("==============================");
