@@ -15,9 +15,9 @@ public class SellingService extends MicroService {
 	}
 
 	@Override
-	protected void initialize() {
+	protected void initialize() {			//initializing with a request. Returning a respond according to the BuyResult result
 		System.out.println("Selling Service " + getName() + " started");
-		this.subscribeBroadcast(TickBroadcast.class, b->{
+		this.subscribeBroadcast(TickBroadcast.class, b->{			//getting current tick
 			currentTick=b.getTick();
 		});
 		subscribeRequest(PurchaseOrderRequest.class, purReq -> {
@@ -41,8 +41,7 @@ public class SellingService extends MicroService {
 					}
 					else{
 						if (result == BuyResult.Not_In_Stock){
-							
-							this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {
+							this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {		//sending restock request for new shoes, callback waiting for a boolean response
 								if (ans==false){
 									this.complete(purReq, null);
 								}
