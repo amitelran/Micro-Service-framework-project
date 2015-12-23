@@ -22,7 +22,7 @@ public class SellingService extends MicroService {
 			}
 			else {
 				if (result == BuyResult.Discounted_Price){
-					
+					//
 				}
 				else{
 					if (result == BuyResult.Not_On_Discount){
