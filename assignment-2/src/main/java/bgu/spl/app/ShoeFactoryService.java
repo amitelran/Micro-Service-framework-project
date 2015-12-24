@@ -22,7 +22,8 @@ public class ShoeFactoryService extends MicroService{
 			while (currentTick != finishTick){
 				System.out.println("Manufacturing request for " + manuReq.getAmount() + " " + manuReq.getType() + "...");
 			}
-			Receipt rec = new Receipt("Shoe Factory", "Store", manuReq.getType(), false, finishTick, finishTick-manuReq.getAmount()-1, manuReq.getAmount()); 
+			Receipt rec = new Receipt("Shoe Factory", "Store", manuReq.getType(), false, finishTick, finishTick-manuReq.getAmount()-1, manuReq.getAmount());
+			
 		});
 		
 	}
