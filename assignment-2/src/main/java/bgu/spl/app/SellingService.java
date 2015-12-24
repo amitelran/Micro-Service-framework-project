@@ -23,41 +23,33 @@ public class SellingService extends MicroService {
 		subscribeRequest(PurchaseOrderRequest.class, purReq -> {
 			BuyResult result;
 			try {
-				result = Store.getInstance().take(purReq.getType(), purReq.onlyOnDiscount());
-			if (result == BuyResult.Regular_Price){
-				Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), false, this.currentTick, purReq.getRequestedTime(), 1);
-				Store.getInstance().file(rec);
-				this.complete(purReq,rec);
-			}
-			else {
-				if (result == BuyResult.Discounted_Price){
+					result = Store.getInstance().take(purReq.getType(), purReq.onlyOnDiscount());
+				if (result == BuyResult.Regular_Price){
+					Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), false, this.currentTick, purReq.getRequestedTime(), 1);
+					Store.getInstance().file(rec);
+					this.complete(purReq,rec);
+				}
+				else if (result == BuyResult.Discounted_Price){
 					Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), true, this.currentTick, purReq.getRequestedTime(), 1);
 					Store.getInstance().file(rec);
 					this.complete(purReq,rec);
 				}
-				else{
-					if (result == BuyResult.Not_On_Discount){
-						this.complete(purReq,null);
-					}
-					else{
-						if (result == BuyResult.Not_In_Stock){
-							
-							this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {
-								if (ans==false){
-									this.complete(purReq, null);
-								}
-								else{
-									Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), false, this.currentTick, purReq.getRequestedTime(), 1);
-									Store.getInstance().file(rec);
-									this.complete(purReq,rec);
-								}
-							});
+				else if (result == BuyResult.Not_On_Discount){
+							this.complete(purReq,null);
 						}
-					}
-				}
-			
-           
-            }
+				else{	// means result == BuyResult.Not_In_Stock
+								
+					this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {
+						if (ans==false){
+							this.complete(purReq, null);
+						}
+						else{
+							Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), false, this.currentTick, purReq.getRequestedTime(), 1);
+							Store.getInstance().file(rec);
+							this.complete(purReq,rec);
+						}
+					});
+	            }
 			}
 			catch (Exception e) {
 				e.printStackTrace();
