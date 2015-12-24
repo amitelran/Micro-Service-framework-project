@@ -62,7 +62,7 @@ public class ManagementService extends MicroService {
 					this.sendRequest(new ManufacturingOrderRequest(shoe, newOrderAmount), res->{
 						synchronized(orders){
 							
-							if(res!=null){//
+							if(res!=null){
 								Store.getInstance().file(res);
 								if(res.getAmountSold()-orders.get(shoe).reserved>0)
 									Store.getInstance().add(shoe, res.getAmountSold()-orders.get(shoe).reserved);
