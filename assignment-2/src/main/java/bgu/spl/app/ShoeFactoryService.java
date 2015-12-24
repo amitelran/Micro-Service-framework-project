@@ -26,7 +26,6 @@ public class ShoeFactoryService extends MicroService{
 	            } catch (InterruptedException e) {}
 			}
 			Receipt rec = new Receipt("Shoe Factory", "Store", manuReq.getType(), false, finishTick, finishTick-manuReq.getAmount()-1, manuReq.getAmount());
-			Store.getInstance().file(rec);
 			this.complete(manuReq,rec);
 		});
 	}
