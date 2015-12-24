@@ -34,7 +34,7 @@ public class SellingService extends MicroService {
 					Store.getInstance().file(rec);
 					this.complete(purReq,rec);
 				}
-				else if (result == BuyResult.Not_On_Discount){
+				else if (result == BuyResult.Not_On_Discount){//
 							this.complete(purReq,null);
 						}
 				else{	// means result == BuyResult.Not_In_Stock
