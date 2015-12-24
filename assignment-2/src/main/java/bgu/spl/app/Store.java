@@ -16,7 +16,7 @@ public class Store {
 	        return SingletonHolder.instance;
 	    }
 	 
-	 private Store(){
+	 public Store(){
 		 shoesInfo=new ConcurrentHashMap<String,ShoeStorageInfo>();
 		 issuedReceipts=new ConcurrentHashMap<String,Receipt>();
 	 }
@@ -33,8 +33,8 @@ public class Store {
 	 
 	 public BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
 		 BuyResult result;
-		 ShoeStorageInfo shoe = shoesInfo.get(shoeType);
-		 if (shoe!=null&&shoe.getAmountOnStorage()>0){
+		 if (shoesInfo.containsKey(shoeType)){
+			 ShoeStorageInfo shoe = shoesInfo.get(shoeType);
 			 if (onlyDiscount){								//checks for only discounted shoe
 				 if (shoe.getDiscountedAmountOnStorage()>0){
 					 shoe.sellDiscountedShoe();
@@ -91,24 +91,8 @@ public class Store {
 	 }
 	 
 	 public void print(){
-		 int i=1;
-		 System.out.println("============================Store Info============================");
-		 if(shoesInfo.isEmpty())
-			 System.out.println("No shoes on storage yet.");
-		 else{
-			 for (ShoeStorageInfo shoe : shoesInfo.values()){
-				 System.out.print("Stock: Shoe Model #"+i+":\n\t");
-				 shoe.print();
-				 i++;
-			 }
-		 }
-		 if(!issuedReceipts.isEmpty()){
-			 System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-			 for (Receipt rec : issuedReceipts.values()){
-				 rec.print();
-			 }
-		 }
-		 System.out.println("==================================================================");
+		 shoesInfo.forEach((shoe,info) -> System.out.println("Shoe Type: "+info.getName()+", amount on storage: "+info.getAmountOnStorage()+", discounted amount on storage: "+info.getDiscountedAmountOnStorage()));
+		 issuedReceipts.forEach((shoe,receipt) -> receipt.print());
 	 }
 	 
 }
