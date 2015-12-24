@@ -1,7 +1,5 @@
 package bgu.spl.app;
 
-import java.util.concurrent.CountDownLatch;
-
 import bgu.spl.mics.MicroService;
 
 public class ShoeFactoryService extends MicroService{
@@ -20,9 +18,11 @@ public class ShoeFactoryService extends MicroService{
 			currentTick=b.getTick();
 		});
 		this.subscribeRequest(ManufacturingOrderRequest.class, manuReq->{			//subscribing to manufacturing requests
-			int manufactureTime = manuReq.getAmount()+1;							//counting ticks for manufacturing
-			CountDownLatch count = new CountDownLatch(manufactureTime);
-			count.countDown();
+			int finishTick = currentTick+manuReq.getAmount()+1;						
+			while (currentTick != finishTick){
+				System.out.println("Manufacturing request for " + manuReq.getAmount() + " " + manuReq.getType() + "...");
+			}
+			Receipt rec = new Receipt("Shoe Factory", "Store", manuReq.getType(), false, finishTick, finishTick-manuReq.getAmount()-1, manuReq.getAmount()); 
 		});
 		
 	}
