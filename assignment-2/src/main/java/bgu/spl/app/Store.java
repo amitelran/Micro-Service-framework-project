@@ -32,7 +32,7 @@ public class Store {
 	}
 	 
 	public BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
-		BuyResult result;
+		BuyResult result;//
 		ShoeStorageInfo shoe = shoesInfo.get(shoeType);
 		if (shoe!=null&&shoe.getAmountOnStorage()>0){
 			if (onlyDiscount){								//checks for only discounted shoe
