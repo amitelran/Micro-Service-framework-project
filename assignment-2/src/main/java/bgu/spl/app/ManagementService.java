@@ -63,6 +63,7 @@ public class ManagementService extends MicroService {
 						synchronized(orders){
 							
 							if(res!=null){
+								Store.getInstance().file(res);
 								if(res.getAmountSold()-orders.get(shoe).reserved>0)
 									Store.getInstance().add(shoe, res.getAmountSold()-orders.get(shoe).reserved);
 								
