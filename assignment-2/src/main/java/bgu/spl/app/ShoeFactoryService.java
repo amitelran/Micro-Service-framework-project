@@ -16,11 +16,15 @@ public class ShoeFactoryService extends MicroService{
 		System.out.println("Shoe Factory service " + getName() + " started");
 		this.subscribeBroadcast(TickBroadcast.class, b->{			//getting current tick
 			currentTick=b.getTick();
+			this.notify();
 		});
 		this.subscribeRequest(ManufacturingOrderRequest.class, manuReq->{			//subscribing to manufacturing requests
 			int finishTick = currentTick+manuReq.getAmount()+1;						
 			while (currentTick != finishTick){
-				System.out.println("Manufacturing request for " + manuReq.getAmount() + " " + manuReq.getType() + "...");
+				try {
+	                this.wait();
+	            } catch (InterruptedException e) {}
+			//	System.out.println("Manufacturing request for " + manuReq.getAmount() + " " + manuReq.getType() + "...");
 			}
 			Receipt rec = new Receipt("Shoe Factory", "Store", manuReq.getType(), false, finishTick, finishTick-manuReq.getAmount()-1, manuReq.getAmount());
 			
