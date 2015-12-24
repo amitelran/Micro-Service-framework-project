@@ -10,7 +10,7 @@ public class SellingService extends MicroService {
 
 	public SellingService(String name){
 		super(name);
-		currentTick=1;
+		currentTick=1;//
 		
 	}
 
