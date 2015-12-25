@@ -1,4 +1,5 @@
 package bgu.spl.app;
+<<<<<<< HEAD
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -46,4 +47,18 @@ public class ShoeStoreRunner {
 		Thread t=new Thread(tS);
 		t.start();
 	}
+=======
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import com.google.code.gson;
+
+public class ShoeStoreRunner {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+>>>>>>> refs/remotes/origin/master
 }
