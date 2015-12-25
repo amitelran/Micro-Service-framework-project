@@ -1,12 +1,14 @@
 package bgu.spl.app;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class Store {
 
 	private ConcurrentHashMap<String,ShoeStorageInfo> shoesInfo;	//holds information for each shoe type <key=shoeType,value=ShoeStorageInfo>
-	private ConcurrentHashMap<String,Receipt> issuedReceipts;		//list of receipts issued to and by the store <key=shoeType,value=Receipt>
+	private List<Receipt> issuedReceipts;		//list of receipts issued to and by the store <key=shoeType,value=Receipt>
 	
 	private static class SingletonHolder {
         private static Store instance = new Store();
@@ -18,7 +20,7 @@ public class Store {
 	 
 	private Store(){
 		shoesInfo=new ConcurrentHashMap<String,ShoeStorageInfo>();
-	 	issuedReceipts=new ConcurrentHashMap<String,Receipt>();
+	 	issuedReceipts=new LinkedList<Receipt>();
 	}
 	 
 	public void load(ShoeStorageInfo[] storage){		//initializing store storage before execution with given info in array
@@ -31,8 +33,8 @@ public class Store {
 		Not_In_Stock, Not_On_Discount, Regular_Price, Discounted_Price;
 	}
 	 
-	public BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
-		BuyResult result;//
+	public synchronized BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
+		BuyResult result;
 		ShoeStorageInfo shoe = shoesInfo.get(shoeType);
 		if (shoe!=null&&shoe.getAmountOnStorage()>0){
 			if (onlyDiscount){								//checks for only discounted shoe
@@ -65,7 +67,7 @@ public class Store {
 		}
 	}
 
-	public void add(String shoeType, int amount){	
+	public synchronized void add(String shoeType, int amount){	
 		if (!shoesInfo.containsKey(shoeType)){
 			ShoeStorageInfo shoe = new ShoeStorageInfo(shoeType,amount,0);
 			shoesInfo.put(shoeType,shoe);
@@ -75,22 +77,20 @@ public class Store {
 		}
 	}
 
-	public void addDiscount(String shoeType, int amount){
-		if (!shoesInfo.containsKey(shoeType)){
-			ShoeStorageInfo shoe = new ShoeStorageInfo(shoeType,amount,amount);
-			shoesInfo.put(shoeType,shoe);
+	public synchronized void addDiscount(String shoeType, int amount) throws Exception{
+		if (shoesInfo.containsKey(shoeType)){
+			shoesInfo.get(shoeType).addDiscountedAmount(amount);
 		}
 		else{
-			shoesInfo.get(shoeType).addAmount(amount);
-			shoesInfo.get(shoeType).addDiscountedAmount(amount);
+			throw new Exception("no shoes for discount");
 		}
 	}
 
-	public void file(Receipt receipt){
-		issuedReceipts.put(receipt.getType(), receipt);
+	public synchronized void file(Receipt receipt){
+		issuedReceipts.add(receipt);
 	}
 	 
-	public void print(){
+	public synchronized void print(){
 		int i=1;
 		System.out.println("============================Store Info============================");
 		if(shoesInfo.isEmpty())
@@ -104,7 +104,7 @@ public class Store {
 		}
 		if(!issuedReceipts.isEmpty()){
 			System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-			for (Receipt rec : issuedReceipts.values()){
+			for (Receipt rec : issuedReceipts){
 				rec.print();
 			}
 		}

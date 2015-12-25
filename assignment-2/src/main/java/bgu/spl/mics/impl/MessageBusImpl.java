@@ -34,16 +34,20 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void subscribeRequest(Class<? extends Request<?>> type, MicroService m){
-		if(messageSubscriptions.get(type)==null)
-			messageSubscriptions.put(type, new ConcurrentRoundRobinQueue<MicroService>());
-		messageSubscriptions.get(type).add(m);
+		synchronized(messageSubscriptions){
+			if(messageSubscriptions.get(type)==null)
+				messageSubscriptions.put(type, new ConcurrentRoundRobinQueue<MicroService>());
+			messageSubscriptions.get(type).add(m);
+		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		if(messageSubscriptions.get(type)==null)
-			messageSubscriptions.put(type, new ConcurrentRoundRobinQueue<MicroService>());
-		messageSubscriptions.get(type).add(m);
+		synchronized(messageSubscriptions){
+			if(!messageSubscriptions.containsKey(type))
+				messageSubscriptions.put(type, new ConcurrentRoundRobinQueue<MicroService>());
+			messageSubscriptions.get(type).add(m);
+		}
 	}
 
 	@Override

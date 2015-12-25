@@ -34,7 +34,7 @@ public class Receipt {
 						, "|  Seller: "+seller
 						, "|  Customer: "+customer
 						, "|  On discount: " + ((discount) ? "Yes" : "No")
-						, "|  Requested on "+requestTick+" tick, issued on "+issuedTick+" tick"
+						, "|  Requested on tick "+requestTick+", issued on tick "+issuedTick
 						, "===============================================================","|s");
 	}
 

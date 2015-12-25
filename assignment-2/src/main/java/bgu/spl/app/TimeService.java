@@ -22,7 +22,6 @@ public class TimeService extends MicroService {
 		time=1;
 		speed=s;
 		duration=d;
-		timer=new Timer();
 	}
 	
 	class Ticker extends TimerTask {
@@ -30,11 +29,13 @@ public class TimeService extends MicroService {
 		@Override
 		public void run() {
 			time++;
+			//System.out.println(time);
 			if(time<duration)
 				TimeService.this.sendBroadcast(new TickBroadcast(time));
 			else{
 				TimeService.this.sendBroadcast(new TerminationBroadcast());
-				this.cancel();
+				TimeService.this.terminate();
+				timer.cancel();
 			}
 		}
 		
@@ -42,6 +43,7 @@ public class TimeService extends MicroService {
 
 	@Override
 	protected void initialize() {
+		timer=new Timer();
 		timer.scheduleAtFixedRate(new Ticker(), speed, speed);
 	}
 

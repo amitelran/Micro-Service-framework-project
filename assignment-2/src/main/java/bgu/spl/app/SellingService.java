@@ -1,5 +1,7 @@
 package bgu.spl.app;
 
+import java.util.logging.Level;
+
 import bgu.spl.app.Store.BuyResult;
 import bgu.spl.mics.MicroService;
 
@@ -15,8 +17,12 @@ public class SellingService extends MicroService {
 	}
 
 	@Override
-	protected void initialize() {
-		System.out.println("Selling Service " + getName() + " started");
+	protected void initialize() {	
+		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
+			this.terminate();
+		});
+		
+		logger.log(Level.INFO,"Selling Service " + getName() + " started");
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
 		});

@@ -17,6 +17,7 @@ public class ManagementService extends MicroService {
 		public orderedAndReserved(int ordered,int reserved,RestockRequest req){
 			this.ordered=ordered;
 			this.reserved=reserved;
+			requests=new ConcurrentLinkedQueue<RestockRequest>();
 			requests.add(req);
 		}
 	}
@@ -32,12 +33,23 @@ public class ManagementService extends MicroService {
 	}
 
 	@Override
-	protected void initialize() {
+	protected void initialize() {	
+		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
+			Store.getInstance().print();
+			this.terminate();
+		});
+		
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
 			for(DiscountSchedule dS : DiscountSchedule){
-				if(dS.getTick()>=currentTick){
+				if(dS.getTick()<=currentTick){
 					DiscountSchedule.remove(dS);
+					try {
+						Store.getInstance().addDiscount(dS.getShoeType(), dS.getAmount());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					this.sendBroadcast(new NewDiscountBroadcast(dS.getShoeType(), dS.getAmount()));
 				}
 			}
