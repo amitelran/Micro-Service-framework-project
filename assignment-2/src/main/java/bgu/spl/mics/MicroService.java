@@ -2,8 +2,8 @@ package bgu.spl.mics;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import bgu.spl.mics.impl.MessageBusImpl;
 
 /**
@@ -27,7 +27,11 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-	protected final Logger logger=Logger.getGlobal();
+	private final Logger logger;
+	
+	protected void log(String s){
+		logger.log(Level.INFO, s);
+	}
     
     private Map<Class<? extends Message>,Callback<? extends Message>> messageReplyCallbacks;
     private Map<Request<?>,Callback<?>> completedReplyCallbacks;
@@ -40,6 +44,8 @@ public abstract class MicroService implements Runnable {
         this.name = name;
         messageReplyCallbacks = new ConcurrentHashMap<Class<? extends Message>,Callback<? extends Message>>();
         completedReplyCallbacks = new ConcurrentHashMap<Request<?>,Callback<?>>();
+        logger = Logger.getLogger(MicroService.class.getName());	
+        logger.setLevel(Level.INFO);
     }
 
     /**

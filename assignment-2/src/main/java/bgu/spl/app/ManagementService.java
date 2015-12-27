@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CyclicBarrier;
 
 import bgu.spl.mics.MicroService;
 
 public class ManagementService extends MicroService {
+	private CyclicBarrier barrier;
 	
 	private class orderedAndReserved{
 		int ordered;
@@ -25,16 +27,23 @@ public class ManagementService extends MicroService {
 	private int currentTick;
 	private Map<String,orderedAndReserved> orders;
 	
-	public ManagementService(List<DiscountSchedule> DiscountSchedule) {
+	public ManagementService(List<DiscountSchedule> DiscountSchedule,CyclicBarrier barrier) {
 		super("manager");
 		this.DiscountSchedule=DiscountSchedule;
 		currentTick=1;
 		orders = new ConcurrentHashMap<String,orderedAndReserved>();
+		this.barrier=barrier;
 	}
 
 	@Override
-	protected void initialize() {	
+	protected void initialize() {
+		log("Mangament Service is starting");
 		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
+			log("tick #"+(currentTick+1)+": manager got a Termination Broadcast, waiting for all services to gracefully terminate ...");
+			try {
+				barrier.await();
+			} catch (Exception e) {}
+			log("everyone terminated gracefully... printing stock info and receipts.");
 			Store.getInstance().print();
 			this.terminate();
 		});
@@ -56,6 +65,7 @@ public class ManagementService extends MicroService {
 		});
 		
 		this.subscribeRequest(RestockRequest.class, req -> {
+			log("tick #"+currentTick+": "+this.getName() + " got a restock request");
 			synchronized(orders){
 				String shoe=req.getShoeType();
 				int amount=req.getAmount();
@@ -71,34 +81,46 @@ public class ManagementService extends MicroService {
 						order.reserved++;
 						order.requests.add(req);
 					}
-					this.sendRequest(new ManufacturingOrderRequest(shoe, newOrderAmount), res->{
-						synchronized(orders){
-							
-							if(res!=null){
-								Store.getInstance().file(res);
-								if(res.getAmountSold()-orders.get(shoe).reserved>0)
-									Store.getInstance().add(shoe, res.getAmountSold()-orders.get(shoe).reserved);
-								
-								for(int i=0;i<res.getAmountSold()&&!orders.get(shoe).requests.isEmpty();i++)
-									this.complete(orders.get(shoe).requests.poll(), true);
-								
-								if(orders.get(shoe).requests.isEmpty())orders.remove(shoe);
-							}
-							else{
-								for(RestockRequest rr : orders.get(shoe).requests){
-									this.complete(rr, false);
-								}
-								orders.remove(shoe);
-							}
-						}
-					});
+					boolean requestSucceeded=sendManufacturingRequest(shoe,newOrderAmount);
+					if(!requestSucceeded){
+						log("tick #"+currentTick+": no factories could manufacture new shoes :(");
+						this.complete(req, false);
+					}
 				}
 				else{
+					log("tick #"+currentTick+": " + req.getShoeType() + " already ordered from factory with sufficient amount");
 					order.requests.add(req);
 				}
 			}
 		});
-		
+		try {
+			barrier.await();
+		} catch (Exception e) {}
+	}
+	
+	private boolean sendManufacturingRequest(String shoeType,int amount){
+		log("tick #"+currentTick+": " + this.getName() + " sends a manufacturing order request for "+ amount +" pairs of "+shoeType);
+		boolean ans=this.sendRequest(new ManufacturingOrderRequest(shoeType, amount), res->{
+			synchronized(orders){				
+				if(res!=null){
+					Store.getInstance().file(res);
+					if(res.getAmountSold()-orders.get(shoeType).reserved>0)
+						Store.getInstance().add(shoeType, res.getAmountSold()-orders.get(shoeType).reserved);
+					
+					for(int i=0;i<res.getAmountSold()&&!orders.get(shoeType).requests.isEmpty();i++)
+						this.complete(orders.get(shoeType).requests.poll(), true);
+					
+					if(orders.get(shoeType).requests.isEmpty())orders.remove(shoeType);
+				}
+				else{
+					for(RestockRequest rr : orders.get(shoeType).requests){
+						this.complete(rr, false);
+					}
+					orders.remove(shoeType);
+				}
+			}
+		});
+		return ans;
 	}
 
 }

@@ -70,14 +70,15 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public boolean sendRequest(Request<?> r, MicroService requester) {
 		ConcurrentRoundRobinQueue<MicroService> rQueue = messageSubscriptions.get(r.getClass());
-		MicroService rrMS=rQueue.getNextRR();
-		if(rrMS!=null){
-			registeredServices.get(rrMS).add(r);
-			requesterMicroServices.put(r, requester);
-			return true;
+		if(rQueue!=null){
+			MicroService rrMS=rQueue.getNextRR();
+			if(rrMS!=null){
+				registeredServices.get(rrMS).add(r);
+				requesterMicroServices.put(r, requester);
+				return true;
+			}
 		}
-		else
-			return false;
+		return false;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package bgu.spl.app;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CyclicBarrier;
 
 import bgu.spl.mics.MicroService;
 
@@ -10,18 +11,19 @@ public class TimeService extends MicroService {
 	private int speed;
 	private int duration;
 	private Timer timer;
-	TimeService x=this;
+	private CyclicBarrier barrier;
 	
 	/**
 	 * 
 	 * @param s number of milliseconds each clock tick takes
 	 * @param d number of ticks before termination
 	 */
-	public TimeService(int s,int d) {
+	public TimeService(int speed,int duration,CyclicBarrier barrier) {
 		super("timer");
-		time=1;
-		speed=s;
-		duration=d;
+		time=0;
+		this.speed=speed;
+		this.duration=duration;
+		this.barrier = barrier;
 	}
 	
 	class Ticker extends TimerTask {
@@ -34,6 +36,9 @@ public class TimeService extends MicroService {
 				TimeService.this.sendBroadcast(new TickBroadcast(time));
 			else{
 				TimeService.this.sendBroadcast(new TerminationBroadcast());
+				try {
+					barrier.await();
+				} catch (Exception e) {}
 				TimeService.this.terminate();
 				timer.cancel();
 			}
@@ -43,6 +48,11 @@ public class TimeService extends MicroService {
 
 	@Override
 	protected void initialize() {
+		log("Time Service is waiting for all services to initialize...");
+		try {
+			barrier.await();
+		} catch (Exception e) {}
+		log("Everyone's aboard! timer is starting to run... tick tock... tick tock...");
 		timer=new Timer();
 		timer.scheduleAtFixedRate(new Ticker(), speed, speed);
 	}
