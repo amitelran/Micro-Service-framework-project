@@ -1,5 +1,6 @@
 package bgu.spl.app;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,16 +52,19 @@ public class ManagementService extends MicroService {
 		
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
-			for(DiscountSchedule dS : DiscountSchedule){
-				if(dS.getTick()<=currentTick){
-					DiscountSchedule.remove(dS);
+			Iterator<DiscountSchedule> it=DiscountSchedule.iterator();
+			DiscountSchedule ds;
+			while(it.hasNext()){
+				ds=it.next();
+				if(ds.getTick()<=currentTick){
+					it.remove();
 					try {
-						Store.getInstance().addDiscount(dS.getShoeType(), dS.getAmount());
+						Store.getInstance().addDiscount(ds.getShoeType(), ds.getAmount());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					this.sendBroadcast(new NewDiscountBroadcast(dS.getShoeType(), dS.getAmount()));
+					this.sendBroadcast(new NewDiscountBroadcast(ds.getShoeType(), ds.getAmount()));
 				}
 			}
 		});

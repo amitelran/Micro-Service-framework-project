@@ -11,6 +11,7 @@ import java.util.concurrent.CyclicBarrier;
 public class ShoeStoreRunner {
 	
     public static void main(String[] args) {
+		System.setProperty("java.util.logging.SimpleFormatter.format","%5$s [%1$tc]%n");
     	JsonParser input=readJson();
 		final CyclicBarrier barrier = new CyclicBarrier(input.getTotalAmount());
 		Store.getInstance().load(input.getInitialStorage());

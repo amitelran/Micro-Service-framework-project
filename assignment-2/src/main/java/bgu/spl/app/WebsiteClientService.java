@@ -1,5 +1,6 @@
 package bgu.spl.app;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
@@ -41,10 +42,13 @@ public class WebsiteClientService extends MicroService {
 		
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
-			for(PurchaseSchedule pS : purchaseSchedule){
-				if(pS.getTick()<=currentTick){
-					purchaseSchedule.remove(pS);
-					sendPurchseRequest(pS.getShoeType(),false);
+			Iterator<PurchaseSchedule> it=purchaseSchedule.iterator();
+			PurchaseSchedule ps;
+			while(it.hasNext()){
+				ps=it.next();
+				if(ps.getTick()<=currentTick){
+					it.remove();
+					sendPurchseRequest(ps.getShoeType(),false);
 				}
 			}
 		});
