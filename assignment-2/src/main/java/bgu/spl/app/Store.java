@@ -79,12 +79,12 @@ public class Store {
 		}
 	}
 
-	public synchronized void addDiscount(String shoeType, int amount) throws Exception{
+	public synchronized void addDiscount(String shoeType, int amount) throws NoShoesException{
 		if (shoesInfo.containsKey(shoeType)){
 			shoesInfo.get(shoeType).addDiscountedAmount(amount);
 		}
 		else{
-			throw new Exception("no shoes for discount "+shoeType+ " " + amount);
+			throw new NoShoesException(shoeType,amount);
 		}
 	}
 

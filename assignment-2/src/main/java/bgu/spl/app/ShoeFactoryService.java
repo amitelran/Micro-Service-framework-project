@@ -12,12 +12,14 @@ public class ShoeFactoryService extends MicroService{
 	private Integer currentTick;
 	private Map<ManufacturingOrderRequest,Integer> ordersFinalTick;
 	private int totalTicks;
+	private int finalShoeTick;
 	private CyclicBarrier barrier;
 	
 	public ShoeFactoryService(String name,CyclicBarrier barrier){
 		super(name);
 		currentTick=1;
 		totalTicks=0;
+		finalShoeTick=0;
 		ordersFinalTick=new ConcurrentHashMap<ManufacturingOrderRequest,Integer>();
 		this.barrier = barrier;
 	}
@@ -50,9 +52,12 @@ public class ShoeFactoryService extends MicroService{
 			log("tick #" + currentTick + ": " + this.getName() + 
 					" got a Manufacturing Order Request for " + manuReq.getAmount() + 
 					" pairs of " + manuReq.getType() + ". Adding to manufacturing schedule queue...");
-			int finishTick = currentTick+manuReq.getAmount();	
+			if(totalTicks==0)
+				finalShoeTick=currentTick+1;
+			int finishTick = finalShoeTick+manuReq.getAmount();	
+			finalShoeTick=finishTick;
 			ordersFinalTick.put(manuReq, finishTick);
-			totalTicks+=manuReq.getAmount();
+			totalTicks+=manuReq.getAmount()+1;
 		});
 
 		try {
