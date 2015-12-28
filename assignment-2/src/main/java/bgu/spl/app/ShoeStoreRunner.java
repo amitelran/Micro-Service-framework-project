@@ -13,6 +13,7 @@ public class ShoeStoreRunner {
     public static void main(String[] args) {
     	JsonParser input=readJson();
 		final CyclicBarrier barrier = new CyclicBarrier(input.getTotalAmount());
+		Store.getInstance().load(input.getInitialStorage());
 		runServices(input, barrier);
     }
     

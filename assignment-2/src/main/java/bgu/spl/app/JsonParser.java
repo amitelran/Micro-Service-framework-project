@@ -41,14 +41,6 @@ public class JsonParser{
 	        	reader.close();
 	        }
 	    }
-	    
-	    public Services getServices() {
-			return services;
-		}
-
-		public ShoeStorageInfo[] getInitialStorage() {
-			return initialStorage;
-		}
 
 		public ShoeStorageInfo readShoe(JsonReader reader) throws IOException {
 	    	String shoeType=null;;
@@ -253,6 +245,12 @@ public class JsonParser{
 		}
 		public int getTotalAmount() {
 			return totalAmount;
+		}
+		public Services getServices() {
+			return services;
+		}
+		public ShoeStorageInfo[] getInitialStorage() {
+			return initialStorage;
 		}
 
 }		
