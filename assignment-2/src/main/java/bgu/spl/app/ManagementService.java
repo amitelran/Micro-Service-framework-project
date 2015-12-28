@@ -38,7 +38,7 @@ public class ManagementService extends MicroService {
 
 	@Override
 	protected void initialize() {
-		log("Managament Service is starting");
+		log("Management Service is starting");
 		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
 			log("tick #"+(currentTick+1)+": manager got a Termination Broadcast, waiting for all services to gracefully terminate ...");
 			try {
