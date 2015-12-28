@@ -46,8 +46,7 @@ public class SellingService extends MicroService {
 					log("tick #" + currentTick + ": " + this.getName() + " could not sell " + purReq.getType() + " because it doesn't have a discount");
 					this.complete(purReq,null);
 				}
-				else{	// means result == BuyResult.Not_In_Stock
-								
+				else{
 					this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {
 						if (ans==false){
 							log("tick #" + currentTick + ": " + this.getName() + " could not sell " + purReq.getType() + " because restock request got refused");

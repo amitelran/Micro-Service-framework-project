@@ -11,15 +11,18 @@ import java.util.concurrent.CyclicBarrier;
 public class ShoeStoreRunner {
 	
     public static void main(String[] args) {
-		System.setProperty("java.util.logging.SimpleFormatter.format","%5$s [%1$tc]%n");
-    	JsonParser input=readJson();
-		final CyclicBarrier barrier = new CyclicBarrier(input.getTotalAmount());
-		Store.getInstance().load(input.getInitialStorage());
-		runServices(input, barrier);
+    	if(args.length>0) {
+            System.setProperty("java.util.logging.SimpleFormatter.format","%5$s [%1$tc]%n");
+            JsonParser input=readJson(new File(args[0]));
+    		final CyclicBarrier barrier = new CyclicBarrier(input.getTotalAmount());
+    		Store.getInstance().load(input.getInitialStorage());
+    		runServices(input, barrier);
+    	}
+    	else System.out.println("No file to read");
     }
     
-	public static JsonParser readJson() {
-    	File file = new File("c:\\json\\sample.json");
+	public static JsonParser readJson(File inputFile) {
+    	File file = inputFile;
         try {
 			InputStream targetStream = new FileInputStream(file);
 			JsonParser input=new JsonParser();
@@ -81,7 +84,6 @@ public class ShoeStoreRunner {
 		runTimer(input.getServices().getTime(), barrier);
     }   
 
-    
 }
 
 	
