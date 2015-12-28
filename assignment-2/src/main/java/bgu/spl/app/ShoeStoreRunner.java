@@ -7,14 +7,15 @@ import java.io.InputStream;
 import java.nio.file.ReadOnlyFileSystemException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
 
 public class ShoeStoreRunner {
 	
     public static void main(String[] args) {
     	JsonParser input=readJson();
-		final CountDownLatch latch = new CountDownLatch(input.getTotalAmount());
-		runServices(input, latch);
+		final CyclicBarrier barrier = new CyclicBarrier(input.getTotalAmount());
+		runServices(input, barrier);
     }
     
 	public static JsonParser readJson() {
@@ -32,51 +33,51 @@ public class ShoeStoreRunner {
 		return null;
     }
 	
-    public static void runFactories(List<ShoeFactoryService> factories,CountDownLatch latch){
+    public static void runFactories(List<ShoeFactoryService> factories, CyclicBarrier barrier){
     	for (ShoeFactoryService factory: factories){
-    		factory.setM_latchObject(latch);
+    		factory.setM_latchObject(barrier);
     		Thread thread = new Thread(factory);
     		thread.start();
     	}
     }
     
-    public static void runClients(WebsiteClientService[] clients,CountDownLatch latch){
+    public static void runClients(WebsiteClientService[] clients, CyclicBarrier barrier){
     	for (WebsiteClientService it: clients)
     	{
-    		it.setM_latchObject(latch);
+    		it.setM_latchObject(barrier);
     		Thread thread = new Thread(it);
     		thread.start();
     	}
     }
     
-    private static void runSellers(List<SellingService> sellers, CountDownLatch latch) {
+    private static void runSellers(List<SellingService> sellers, CyclicBarrier barrier) {
     	for (SellingService it: sellers)
     	{
-    		it.setM_latchObject(latch);
+    		it.setM_latchObject(barrier);
     		Thread thread = new Thread(it);
     		thread.start();
     	}		
 	}
     
-    private static void runManager(ManagementService manager, CountDownLatch latch) {
-    	manager.setM_latchObject(latch);
+    private static void runManager(ManagementService manager, CyclicBarrier barrier) {
+    	manager.setM_latchObject(barrier);
 		Thread thread = new Thread(manager);
 		thread.start();
 		
 	}
     
-    private static void runTimer(TimeService time, CountDownLatch latch) {
-    	time.setM_latchObject(latch);
+    private static void runTimer(TimeService time, CyclicBarrier barrier) {
+    	time.setM_latchObject(barrier);
 		time.start();
 		
 	}
     
-    private static void runServices(JsonParser input,CountDownLatch latch) {
-    	runFactories(input.getServices().getFactories(), latch);
-		runClients(input.getServices().getCustomers(), latch);
-		runSellers(input.getServices().getSellers(), latch); 
-		runManager(input.getServices().getManager(), latch);
-		runTimer(input.getServices().getTime(), latch);
+    private static void runServices(JsonParser input,CyclicBarrier barrier) {
+    	runFactories(input.getServices().getFactories(), barrier);
+		runClients(input.getServices().getCustomers(), barrier);
+		runSellers(input.getServices().getSellers(), barrier); 
+		runManager(input.getServices().getManager(), barrier);
+		runTimer(input.getServices().getTime(), barrier);
     }   
 
 }

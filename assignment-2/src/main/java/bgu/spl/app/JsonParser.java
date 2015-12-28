@@ -92,7 +92,7 @@ public class JsonParser{
 	          } else reader.skipValue();
 	        }
 	        reader.endObject();
-	        return new TimeService(speed, duration);
+	        return new TimeService(speed, duration,null);
 	    }
 	    
 	    public ManagementService readManager(JsonReader reader) throws IOException {	//reading management service
@@ -111,7 +111,7 @@ public class JsonParser{
 	    }
 	    
 		private DiscountSchedule readDiscountSced(JsonReader reader) throws IOException {		//discount schedule reader
-			String shoeType=null;;
+			String shoeType=null;
 	    	int amount=-1;
 	    	int tick=-1;
 	        reader.beginObject();
