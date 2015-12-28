@@ -24,7 +24,7 @@ public class ShoeFactoryService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		log("Shoe Factory Service " + getName() + " is starting");
+		log(getName() + " is starting");
 		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
 			try {
 				barrier.await();

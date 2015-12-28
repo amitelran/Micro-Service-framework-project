@@ -125,8 +125,8 @@ public class JsonParser{
 		    List<ShoeFactoryService> factories = new ArrayList<ShoeFactoryService>();
 		    int amount = reader.nextInt();
 		    factoriesAmount=amount;
-		    for (int i = 0;i<amount;i++ ){
-		        factories.add(new ShoeFactoryService(Integer.toString(i),null));
+		    for (int i = 1;i<=amount;i++ ){
+		        factories.add(new ShoeFactoryService("Factory Service " + Integer.toString(i),null));
 		    }
 		    return factories;
 		 }
@@ -135,8 +135,8 @@ public class JsonParser{
 		    List<SellingService> sellers = new ArrayList<SellingService>();
 		    int amount = reader.nextInt();
 		    sellersAmount=amount;
-		    for (int i = 0;i<amount;i++ )
-		        sellers.add(new SellingService(Integer.toString(i),null));
+		    for (int i = 1;i<=amount;i++ )
+		        sellers.add(new SellingService("Selling Service " + Integer.toString(i),null));
 		    return sellers;
 		}
 		 
