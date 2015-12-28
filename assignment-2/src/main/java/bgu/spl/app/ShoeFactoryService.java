@@ -37,6 +37,7 @@ public class ShoeFactoryService extends MicroService{
 				totalTicks--;
 				for(Entry<ManufacturingOrderRequest,Integer> e : ordersFinalTick.entrySet()){
 					if(e.getValue()<=currentTick){
+						ordersFinalTick.remove(e.getKey());
 						log("tick #" + currentTick + ": " + this.getName() + " finished manufacturing " 
 					+ e.getKey().getAmount() + " pairs of " + e.getKey().getType() + ". Shipping theme ( with a receipt of course ) ...");
 						Receipt rec = new Receipt(this.getName(), "Store", e.getKey().getType(), false, currentTick, currentTick-e.getKey().getAmount()-1, e.getKey().getAmount());

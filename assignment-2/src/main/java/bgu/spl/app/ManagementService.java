@@ -60,11 +60,12 @@ public class ManagementService extends MicroService {
 					it.remove();
 					try {
 						Store.getInstance().addDiscount(ds.getShoeType(), ds.getAmount());
+						this.sendBroadcast(new NewDiscountBroadcast(ds.getShoeType(), ds.getAmount()));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					this.sendBroadcast(new NewDiscountBroadcast(ds.getShoeType(), ds.getAmount()));
+					
 				}
 			}
 		});
@@ -95,6 +96,7 @@ public class ManagementService extends MicroService {
 				else{
 					log("tick #"+currentTick+": " + req.getShoeType() + " already ordered from factory with sufficient amount");
 					order.requests.add(req);
+					order.reserved++;
 				}
 			}
 		});

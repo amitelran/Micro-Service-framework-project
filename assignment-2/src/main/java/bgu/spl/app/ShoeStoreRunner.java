@@ -19,7 +19,7 @@ public class ShoeStoreRunner {
     }
     
 	public static JsonParser readJson() {
-    	File file = new File("c:\\json\\ass2Example.json");
+    	File file = new File("c:\\json\\sample.json");
         try {
 			InputStream targetStream = new FileInputStream(file);
 			JsonParser input=new JsonParser();

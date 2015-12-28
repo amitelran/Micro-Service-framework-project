@@ -62,6 +62,8 @@ public class Store {
 			}
 		}
 		else{							//no shoes in stock
+			if(shoe!=null&&shoe.getAmountOnStorage()==0)
+				add(shoeType,0);
 			result = BuyResult.Not_In_Stock;
 			return result;
 		}
@@ -82,7 +84,7 @@ public class Store {
 			shoesInfo.get(shoeType).addDiscountedAmount(amount);
 		}
 		else{
-			throw new Exception("no shoes for discount");
+			throw new Exception("no shoes for discount "+shoeType+ " " + amount);
 		}
 	}
 
@@ -108,6 +110,7 @@ public class Store {
 				rec.print();
 			}
 		}
+		System.out.println("Total Receipts: "+issuedReceipts.size());
 		System.out.println("==================================================================");
 	}
 }
