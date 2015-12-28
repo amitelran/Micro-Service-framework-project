@@ -107,7 +107,7 @@ public class JsonParser{
 		        reader.endArray();
 		        reader.endObject();
 	        }
-	        return new ManagementService(discountSchedule);
+	        return new ManagementService(discountSchedule,null);
 	    }
 	    
 		private DiscountSchedule readDiscountSced(JsonReader reader) throws IOException {		//discount schedule reader
@@ -134,7 +134,7 @@ public class JsonParser{
 		    int amount = reader.nextInt();
 		    factoriesAmount=amount;
 		    for (int i = 0;i<amount;i++ ){
-		        factories.add(new ShoeFactoryService(Integer.toString(i)));
+		        factories.add(new ShoeFactoryService(Integer.toString(i),null));
 		    }
 		    return factories;
 		 }
@@ -144,7 +144,7 @@ public class JsonParser{
 		    int amount = reader.nextInt();
 		    sellersAmount=amount;
 		    for (int i = 0;i<amount;i++ )
-		        sellers.add(new SellingService(Integer.toString(i)));
+		        sellers.add(new SellingService(Integer.toString(i),null));
 		    return sellers;
 		}
 		 
@@ -202,7 +202,7 @@ public class JsonParser{
 		        } else reader.skipValue();
 		     }
 		     reader.endObject();
-		     return new WebsiteClientService(name1, purchaseScheduleList, wishList);
+		     return new WebsiteClientService(name1, purchaseScheduleList, wishList, null);
 		}
 		 
 		public WebsiteClientService[] readCustomers(JsonReader reader) throws IOException {		//customers reader

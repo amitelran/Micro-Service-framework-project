@@ -70,4 +70,8 @@ public class SellingService extends MicroService {
 			barrier.await();
 		} catch (Exception e) {}
 	}
+	
+	public void setBarrier(CyclicBarrier barr){
+		this.barrier=barr;
+	}
 }

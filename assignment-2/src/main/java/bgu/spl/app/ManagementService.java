@@ -23,6 +23,7 @@ public class ManagementService extends MicroService {
 			requests.add(req);
 		}
 	}
+	
 	private List<DiscountSchedule> DiscountSchedule;
 	private int currentTick;
 	private Map<String,orderedAndReserved> orders;
@@ -37,7 +38,7 @@ public class ManagementService extends MicroService {
 
 	@Override
 	protected void initialize() {
-		log("Mangament Service is starting");
+		log("Managament Service is starting");
 		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
 			log("tick #"+(currentTick+1)+": manager got a Termination Broadcast, waiting for all services to gracefully terminate ...");
 			try {
@@ -121,6 +122,10 @@ public class ManagementService extends MicroService {
 			}
 		});
 		return ans;
+	}
+	
+	public void setBarrier(CyclicBarrier barr){
+		this.barrier=barr;
 	}
 
 }

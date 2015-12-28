@@ -66,4 +66,8 @@ public class WebsiteClientService extends MicroService {
 				wishList.remove(shoeType);
 		});
 	}
+	
+	public void setBarrier(CyclicBarrier barr){
+		this.barrier=barr;
+	}
 }

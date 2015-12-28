@@ -4,9 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.ReadOnlyFileSystemException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
 
@@ -19,7 +17,7 @@ public class ShoeStoreRunner {
     }
     
 	public static JsonParser readJson() {
-    	File file = new File("c:\\json\\1stcheck.json");
+    	File file = new File("c:\\json\\ass2Example.json");
         try {
 			InputStream targetStream = new FileInputStream(file);
 			JsonParser input=new JsonParser();
@@ -35,7 +33,7 @@ public class ShoeStoreRunner {
 	
     public static void runFactories(List<ShoeFactoryService> factories, CyclicBarrier barrier){
     	for (ShoeFactoryService factory: factories){
-    		factory.setM_latchObject(barrier);
+    		factory.setBarrier(barrier);
     		Thread thread = new Thread(factory);
     		thread.start();
     	}
@@ -44,7 +42,7 @@ public class ShoeStoreRunner {
     public static void runClients(WebsiteClientService[] clients, CyclicBarrier barrier){
     	for (WebsiteClientService it: clients)
     	{
-    		it.setM_latchObject(barrier);
+    		it.setBarrier(barrier);
     		Thread thread = new Thread(it);
     		thread.start();
     	}
@@ -53,22 +51,23 @@ public class ShoeStoreRunner {
     private static void runSellers(List<SellingService> sellers, CyclicBarrier barrier) {
     	for (SellingService it: sellers)
     	{
-    		it.setM_latchObject(barrier);
+    		it.setBarrier(barrier);
     		Thread thread = new Thread(it);
     		thread.start();
     	}		
 	}
     
     private static void runManager(ManagementService manager, CyclicBarrier barrier) {
-    	manager.setM_latchObject(barrier);
+    	manager.setBarrier(barrier);
 		Thread thread = new Thread(manager);
 		thread.start();
 		
 	}
     
     private static void runTimer(TimeService time, CyclicBarrier barrier) {
-    	time.setM_latchObject(barrier);
-		time.start();
+    	time.setBarrier(barrier);
+    	Thread thread = new Thread(time);
+		thread.start();
 		
 	}
     

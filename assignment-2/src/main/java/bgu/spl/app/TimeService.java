@@ -56,5 +56,9 @@ public class TimeService extends MicroService {
 		timer=new Timer();
 		timer.scheduleAtFixedRate(new Ticker(), speed, speed);
 	}
+	
+	public void setBarrier(CyclicBarrier barr){
+		this.barrier=barr;
+	}
 
 }
