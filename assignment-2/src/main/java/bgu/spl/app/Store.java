@@ -92,7 +92,7 @@ public class Store {
 		issuedReceipts.add(receipt);
 	}
 	 
-	public synchronized void print(){
+	public synchronized void print(){			//prints shoes on storage info and receipts info
 		int i=1;
 		System.out.println("============================Store Info============================");
 		if(shoesInfo.isEmpty())
@@ -112,5 +112,36 @@ public class Store {
 		}
 		System.out.println("Total Receipts: "+issuedReceipts.size());
 		System.out.println("==================================================================");
+	}
+	
+	public ShoeStorageInfo getShoeInfo(String shoe){			//helper method for testing JUnit
+		if (this.shoesInfo.containsKey(shoe)){
+			ShoeStorageInfo info = this.shoesInfo.get(shoe);
+			return info;
+		}
+		else{
+			System.out.println("Doesn't contain " +shoe);
+			return null;
+		}
+	}
+	
+	public Receipt getReceipt(Receipt rec){					//helper method for testing JUnit
+		if (this.issuedReceipts.contains(rec)){
+			return rec;
+		}
+		else{
+			System.out.println("Doesn't contain the desired receipt");
+			return null;
+		}
+	}
+	
+	public ConcurrentHashMap<String,ShoeStorageInfo> getStorageInfo(){					//helper method for testing JUnit
+		if (this.shoesInfo!=null){
+			return this.shoesInfo;
+		}
+		else{
+			System.out.println("Empty storage");
+			return null;
+		}
 	}
 }
