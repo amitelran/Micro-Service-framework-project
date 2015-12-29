@@ -31,7 +31,7 @@ public class TimeService extends MicroService {
 		@Override
 		public void run() {
 			time++;
-			if(time<duration)
+			if(time<=duration)
 				TimeService.this.sendBroadcast(new TickBroadcast(time));
 			else{
 				TimeService.this.sendBroadcast(new TerminationBroadcast());

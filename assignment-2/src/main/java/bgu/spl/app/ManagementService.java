@@ -41,7 +41,7 @@ public class ManagementService extends MicroService {
 	protected void initialize() {
 		log("Management Service is starting");
 		this.subscribeBroadcast(TerminationBroadcast.class, terB->{
-			log("tick #"+(currentTick+1)+": manager got a Termination Broadcast, waiting for all services to gracefully terminate ...");
+			log("manager got a Termination Broadcast, waiting for all services to gracefully terminate ...");
 			try {
 				barrier.await();
 			} catch (Exception e) {}
@@ -61,11 +61,9 @@ public class ManagementService extends MicroService {
 					try {
 						Store.getInstance().addDiscount(ds.getShoeType(), ds.getAmount());
 						this.sendBroadcast(new NewDiscountBroadcast(ds.getShoeType(), ds.getAmount()));
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (NoShoesException e) {
+						log("tick #" + currentTick + ": no enough shoes of type " + e.getShoeType() + " in stock for discount (requested " + e.getAmount() + ")");
 					}
-					
 				}
 			}
 		});

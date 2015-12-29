@@ -34,38 +34,24 @@ public class Store {
 	}
 	 
 	public synchronized BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
-		BuyResult result;
 		ShoeStorageInfo shoe = shoesInfo.get(shoeType);
 		if (shoe!=null&&shoe.getAmountOnStorage()>0){
-			if (onlyDiscount){								//checks for only discounted shoe
-				if (shoe.getDiscountedAmountOnStorage()>0){
-					shoe.sellDiscountedShoe();
-					result = BuyResult.Discounted_Price;
-					return result;
-				}
-				else {
-					result = BuyResult.Not_On_Discount;
-					return result;
-				}
+			if (shoe.getDiscountedAmountOnStorage()>0){
+				shoe.sellDiscountedShoe();
+				return BuyResult.Discounted_Price;
 			}
-			else {				//selling regular shoe
-				if (shoe.getDiscountedAmountOnStorage()>0){
-					shoe.sellDiscountedShoe();
-					result = BuyResult.Discounted_Price;
-					return result;
-				}
-				else {
-					shoe.sellShoe();
-					result = BuyResult.Regular_Price;
-					return result;
-				}
+			else if(onlyDiscount) {
+				return BuyResult.Not_On_Discount;
+			}
+			else{
+				shoe.sellShoe();
+				return BuyResult.Regular_Price;
 			}
 		}
 		else{							//no shoes in stock
 			if(shoe!=null&&shoe.getAmountOnStorage()==0)
 				add(shoeType,0);
-			result = BuyResult.Not_In_Stock;
-			return result;
+			return BuyResult.Not_In_Stock;
 		}
 	}
 
@@ -79,12 +65,12 @@ public class Store {
 		}
 	}
 
-	public synchronized void addDiscount(String shoeType, int amount) throws Exception{
+	public synchronized void addDiscount(String shoeType, int amount) throws NoShoesException{
 		if (shoesInfo.containsKey(shoeType)){
 			shoesInfo.get(shoeType).addDiscountedAmount(amount);
 		}
 		else{
-			throw new Exception("no shoes for discount "+shoeType+ " " + amount);
+			throw new NoShoesException(shoeType,amount);
 		}
 	}
 
@@ -108,6 +94,7 @@ public class Store {
 			System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 			for (Receipt rec : issuedReceipts){
 				rec.print();
+				System.out.println();
 			}
 		}
 		System.out.println("Total Receipts: "+issuedReceipts.size());
