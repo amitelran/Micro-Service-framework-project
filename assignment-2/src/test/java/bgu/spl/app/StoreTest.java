@@ -29,7 +29,7 @@ public class StoreTest {
 
 	@Test
 	public void testGetInstance() {
-		assertFalse(store.getInstance()==null);
+		assertNotNull(store);
 	}
 
 	@Test
