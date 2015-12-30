@@ -3,8 +3,8 @@ package bgu.spl.app;
 import bgu.spl.mics.Broadcast;
 
 /**
- * a broadcast message that is sent when the manager of the store decides to have
- *  a discounted sale on a specific shoe.
+ * A broadcast message that is sent when the manager of the store decides to have a discounted sale
+ * on a specific shoe.
  */
 public class NewDiscountBroadcast implements Broadcast {
 	private String shoeType;

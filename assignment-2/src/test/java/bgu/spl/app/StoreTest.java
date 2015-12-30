@@ -27,15 +27,20 @@ public class StoreTest {
 	}
 
 	@Test
-	public void testLoad() throws Exception {		
-		assertEquals(store.take("pink-shkafkafim",false), BuyResult.Not_In_Stock);
-		ShoeStorageInfo[] shoesStock = {
-				new ShoeStorageInfo("pink-shkafkafim", 5, 0),
-				new ShoeStorageInfo("blue-nikey", 7, 0),
-				new ShoeStorageInfo("green-SPLspecial", 9, 0)
-		};
-		store.load(shoesStock);
-		assertEquals(store.take("pink-shkafkafim",false), BuyResult.Regular_Price);
+	public void testLoad() throws Exception {
+		try{
+			assertEquals(store.take("pink-shkafkafim",false), BuyResult.Not_In_Stock);
+			ShoeStorageInfo[] shoesStock = {
+					new ShoeStorageInfo("pink-shkafkafim", 5, 0),
+					new ShoeStorageInfo("blue-nikey", 7, 0),
+					new ShoeStorageInfo("green-SPLspecial", 9, 0)
+			};
+			store.load(shoesStock);
+			assertEquals(store.take("pink-shkafkafim",false), BuyResult.Regular_Price);
+		}catch(RuntimeException e){
+			fail("No exception thrown");
+		}
+		
 	}
 
 	@Test
@@ -46,16 +51,25 @@ public class StoreTest {
 				new ShoeStorageInfo("green-SPLspecial", 9, 0)
 		};
 		store.load(shoesStock);
-		assertEquals(store.take("green-flip-flops", false), BuyResult.Not_In_Stock);
-		assertEquals(store.take("blue-nikey", false), BuyResult.Regular_Price);
-		assertEquals(store.take("black-allstars", true), BuyResult.Not_On_Discount);
+		try{
+			assertEquals(store.take("green-flip-flops", false), BuyResult.Not_In_Stock);
+			assertEquals(store.take("blue-nikey", false), BuyResult.Regular_Price);
+			assertEquals(store.take("black-allstars", true), BuyResult.Not_On_Discount);
+		}catch(RuntimeException e){
+			fail("No exception thrown");
+		}
 	}
 
 	@Test
 	public void testAdd() throws Exception {
-		assertEquals(store.take("red-boots",false), BuyResult.Not_In_Stock);
-		store.add("red-boots", 1);
-		assertEquals(store.take("red-boots",false), BuyResult.Regular_Price);
+		try{
+			assertEquals(store.take("red-boots",false), BuyResult.Not_In_Stock);
+			store.add("red-boots", 1);
+			assertEquals(store.take("red-boots",false), BuyResult.Regular_Price);
+		}catch(RuntimeException e){
+			fail("No exception thrown");
+		}
+		
 	}
 
 	@Test

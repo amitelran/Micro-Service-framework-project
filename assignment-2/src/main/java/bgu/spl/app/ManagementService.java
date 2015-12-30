@@ -9,14 +9,34 @@ import java.util.concurrent.CyclicBarrier;
 
 import bgu.spl.mics.MicroService;
 
+/**
+ * A micro-service which can add discount to shoes in the store and send NewDiscountBroadcast to notify clients and
+ * selling services. In addition, this micro-service handles RestockRequests from selling services,
+ * checks if there is already an order for the shoe, and if not, it send ManufacturingOrderRequest to
+ * a factory. When the order is completed, it updates the store storage, files the receipt and completes the 
+ * RestockRequest with the result of true (if there is no factory to respond to the request, it completes
+ * the request with the result of false). 
+ */
 public class ManagementService extends MicroService {
-	private CyclicBarrier barrier;
 	
+	/**
+	 * An object which holds the information of the RestockRequests, how many shoes been ordered in the request
+	 * and how many has been reserved. Reserved means the if a client request a shoe of some type, a 
+	 * manufacturing request has been sent and another client is requesting for same shoe, then, the
+	 * reserved calculates the delta between the amount requested from clients and the amount ordered 
+	 * for restock, in order to check whether a new RestockRequest is needed or the amount requested for 
+	 * restock suffies the current amount requested from clients.
+	 */
 	private class orderedAndReserved{
 		int ordered;
 		int reserved;
 		ConcurrentLinkedQueue<RestockRequest> requests;
 		
+		/**
+		 * @param ordered - amount of shoes ordered
+		 * @param reserved - amount of shoes reserved
+		 * @param req - a RestockRequest to be added to the linked queue
+		 */
 		public orderedAndReserved(int ordered,int reserved,RestockRequest req){
 			this.ordered=ordered;
 			this.reserved=reserved;
@@ -25,10 +45,19 @@ public class ManagementService extends MicroService {
 		}
 	}
 	
+	
 	private List<DiscountSchedule> DiscountSchedule;
 	private int currentTick;
 	private Map<String,orderedAndReserved> orders;
+	private CyclicBarrier barrier;
 	
+	/**
+	 * The constructor defines the manager with name, discount schedule, starting tick, orders map and 
+	 * a shared cyclicBarrier.
+	 * @param DiscountSchedule - a list of the discounts to be issued
+	 * @param barrier - a shared cyclicBarrier for all services used for verifying all other services are down 
+	 * before self termination.
+	 */
 	public ManagementService(List<DiscountSchedule> DiscountSchedule,CyclicBarrier barrier) {
 		super("manager");
 		this.DiscountSchedule=DiscountSchedule;
@@ -37,6 +66,16 @@ public class ManagementService extends MicroService {
 		this.barrier=barrier;
 	}
 
+	/**
+	 * Initializing the ManagementService. 
+	 * Subscribing the ManagementService to the TickBroadcast, in which it updates the global hour and
+	 * performing it actions as required according to the corresponding tick.
+	 * The iterator goes through all past discountSchedule and send the requests according to the schedule.
+	 * Subscribing to restockRequests and sending them to the factories for manufacturing or not.
+	 * Subscribing the ManagementService to termination broadcast.
+	 * After receiving termination broadcast, the ManagementService will wait for all other services to
+	 * gracefully terminate, and only then will print the store data, and self terminate itself.
+	 */
 	@Override
 	protected void initialize() {
 		log("Management Service is starting");
@@ -103,6 +142,11 @@ public class ManagementService extends MicroService {
 		} catch (Exception e) {}
 	}
 	
+	/**
+	 * Sends a manufacturing request and returns a boolean value which represents the request response.
+	 * @param shoeType - the shoe type to be requested
+	 * @param amount - the amount requested to manufacture of the given shoe type
+	 */
 	private boolean sendManufacturingRequest(String shoeType,int amount){
 		log("tick #"+currentTick+": " + this.getName() + " sends a manufacturing order request for "+ amount +" pairs of "+shoeType);
 		boolean ans=this.sendRequest(new ManufacturingOrderRequest(shoeType, amount), res->{
@@ -127,6 +171,10 @@ public class ManagementService extends MicroService {
 		return ans;
 	}
 	
+	/**
+	 * A setter which sets the shared cyclicBarrier to the ManagementService
+	 * @param barrier - a shared cyclicBarrier for all services
+	 */
 	public void setBarrier(CyclicBarrier barr){
 		this.barrier=barr;
 	}
