@@ -85,29 +85,4 @@ public class StoreTest {
 		System.out.println("\n");
 	}
 
-	@Test
-	public void testFile() {
-		System.out.println("\n");
-		System.out.println("*******testFile method invokation*******\n");
-		System.out.println("\n");
-		Receipt rec = new Receipt("seller", "customer", "amazing-shoe", false, 4, 6, 2);
-		store.file(rec);
-		assertEquals(store.getReceipt(rec),rec);
-		store.print();
-		System.out.println("\n");
-		System.out.println("*******testFile method finish*******\n");
-		System.out.println("\n");
-	}
-
-	@Test
-	public void testPrint() {
-		System.out.println("\n");
-		System.out.println("*******testPrint method invokation*******\n");
-		System.out.println("\n");
-		store.print();
-		System.out.println("\n");
-		System.out.println("*******testPrint method finish*******\n");
-		System.out.println("\n");
-	}
-
 }
