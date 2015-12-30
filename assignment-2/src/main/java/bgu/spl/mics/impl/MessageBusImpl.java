@@ -2,6 +2,7 @@ package bgu.spl.mics.impl;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,6 +36,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void subscribeRequest(Class<? extends Request<?>> type, MicroService m){
 		synchronized(messageSubscriptions){
+			returnRegistered(m);
 			if(messageSubscriptions.get(type)==null)
 				messageSubscriptions.put(type, new ConcurrentRoundRobinQueue<MicroService>());
 			messageSubscriptions.get(type).add(m);
@@ -44,6 +46,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		synchronized(messageSubscriptions){
+			returnRegistered(m);
 			if(!messageSubscriptions.containsKey(type))
 				messageSubscriptions.put(type, new ConcurrentRoundRobinQueue<MicroService>());
 			messageSubscriptions.get(type).add(m);
@@ -52,7 +55,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void complete(Request<T> r, T result) {
-		registeredServices.get(requesterMicroServices.get(r)).add(new RequestCompleted<T>(r, result));
+		returnRegistered(requesterMicroServices.get(r)).add(new RequestCompleted<T>(r, result));
 		requesterMicroServices.remove(r);
 		
 	}
@@ -62,23 +65,26 @@ public class MessageBusImpl implements MessageBus {
 		ConcurrentLinkedQueue<MicroService> bQueue = messageSubscriptions.get(b.getClass());
 		if(bQueue!=null){
 			for(MicroService m : bQueue){
-				registeredServices.get(m).add(b);
+				returnRegistered(m).add(b);
 			}
 		}
 	}
 
 	@Override
 	public boolean sendRequest(Request<?> r, MicroService requester) {
-		ConcurrentRoundRobinQueue<MicroService> rQueue = messageSubscriptions.get(r.getClass());
-		if(rQueue!=null){
-			MicroService rrMS=rQueue.getNextRR();
-			if(rrMS!=null){
-				registeredServices.get(rrMS).add(r);
-				requesterMicroServices.put(r, requester);
-				return true;
+		synchronized(messageSubscriptions){
+			returnRegistered(requester);
+			ConcurrentRoundRobinQueue<MicroService> rQueue = messageSubscriptions.get(r.getClass());
+			if(rQueue!=null){
+				MicroService rrMS=rQueue.getNextRR();
+				if(rrMS!=null){
+					registeredServices.get(rrMS).add(r);
+					requesterMicroServices.put(r, requester);
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
 	}
 
 	@Override
@@ -88,22 +94,33 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		Iterator<ConcurrentRoundRobinQueue<MicroService>> it = messageSubscriptions.values().iterator();
+		Iterator<ConcurrentRoundRobinQueue<MicroService>> it1 = messageSubscriptions.values().iterator();
 		ConcurrentRoundRobinQueue<MicroService> RRQ;
-		while(it.hasNext()){
-			RRQ=it.next();
+		while(it1.hasNext()){
+			RRQ=it1.next();
 			RRQ.remove(m);
+			if(RRQ.isEmpty())
+				it1.remove();
+		}
+		Iterator<Entry<Request<?>,MicroService>> it2 = requesterMicroServices.entrySet().iterator();
+		while(it2.hasNext()){
+			if(it2.next().getValue()==m)
+				it2.remove();
 		}
 		registeredServices.remove(m);
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		ConcurrentLinkedQueue<Message> MQ=registeredServices.get(m);
-		if(MQ==null)
-			throw new IllegalStateException("MicroService "+m.getName()+" is not registered");
+		ConcurrentLinkedQueue<Message> MQ=returnRegistered(m);
 		if(!MQ.isEmpty())
 			return MQ.remove();
 		return null;
+	}
+	
+	private ConcurrentLinkedQueue<Message> returnRegistered(MicroService m){
+		if(registeredServices.get(m)==null)
+			throw new IllegalStateException("MicroService "+m.getName()+" is not registered");
+		return registeredServices.get(m);
 	}
 }
