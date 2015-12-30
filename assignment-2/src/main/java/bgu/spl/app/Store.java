@@ -49,8 +49,6 @@ public class Store {
 			}
 		}
 		else{							//no shoes in stock
-			if(shoe!=null&&shoe.getAmountOnStorage()==0)
-				add(shoeType,0);
 			return BuyResult.Not_In_Stock;
 		}
 	}

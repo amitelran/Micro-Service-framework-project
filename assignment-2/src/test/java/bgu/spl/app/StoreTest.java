@@ -15,12 +15,6 @@ public class StoreTest {
 	@Before
 	public void setUp() throws Exception {
 		store = Store.getInstance();
-		ShoeStorageInfo[] shoesStock = {
-				new ShoeStorageInfo("black-allstars", 5, 0),
-				new ShoeStorageInfo("blue-nikey", 7, 0),
-				new ShoeStorageInfo("green-SPLspecial", 9, 0)
-		};
-		store.load(shoesStock);
 	}
 
 	@After
@@ -33,56 +27,48 @@ public class StoreTest {
 	}
 
 	@Test
-	public void testLoad() {			//checks storage existance
-		System.out.println("\n");
-		System.out.println("*******testLoad method invokation*******\n");
-		System.out.println("\n");
-		assertTrue(store.getStorageInfo()!=null);
-		assertEquals(store.getStorageInfo().size(), 3);
-		store.print();
-		System.out.println("\n");
-		System.out.println("*******testLoad method finish*******\n");
-		System.out.println("\n");
+	public void testLoad() throws Exception {		
+		assertEquals(store.take("pink-shkafkafim",false), BuyResult.Not_In_Stock);
+		ShoeStorageInfo[] shoesStock = {
+				new ShoeStorageInfo("pink-shkafkafim", 5, 0),
+				new ShoeStorageInfo("blue-nikey", 7, 0),
+				new ShoeStorageInfo("green-SPLspecial", 9, 0)
+		};
+		store.load(shoesStock);
+		assertEquals(store.take("pink-shkafkafim",false), BuyResult.Regular_Price);
 	}
 
 	@Test
 	public void testTake() throws Exception {
-		System.out.println("\n");
-		System.out.println("*******testTake method invokation*******\n");
-		System.out.println("\n");
+		ShoeStorageInfo[] shoesStock = {
+				new ShoeStorageInfo("black-allstars", 5, 0),
+				new ShoeStorageInfo("blue-nikey", 7, 0),
+				new ShoeStorageInfo("green-SPLspecial", 9, 0)
+		};
+		store.load(shoesStock);
 		assertEquals(store.take("green-flip-flops", false), BuyResult.Not_In_Stock);
 		assertEquals(store.take("blue-nikey", false), BuyResult.Regular_Price);
 		assertEquals(store.take("black-allstars", true), BuyResult.Not_On_Discount);
-		store.print();
-		System.out.println("\n");
-		System.out.println("*******testTake method finish*******\n");
-		System.out.println("\n");
 	}
 
 	@Test
-	public void testAdd() {
-		System.out.println("\n");
-		System.out.println("*******testAdd method invokation*******\n");
-		System.out.println("\n");
-		store.add("black-allstars", 5);
-		assertEquals(store.getShoeInfo("black-allstars").getAmountOnStorage(), 10);
-		store.print();
-		System.out.println("\n");
-		System.out.println("*******testAdd method finish*******\n");
-		System.out.println("\n");
+	public void testAdd() throws Exception {
+		assertEquals(store.take("red-boots",false), BuyResult.Not_In_Stock);
+		store.add("red-boots", 1);
+		assertEquals(store.take("red-boots",false), BuyResult.Regular_Price);
 	}
 
 	@Test
 	public void testAddDiscount() throws Exception {
-		System.out.println("\n");
-		System.out.println("*******testAddDiscount method invokation*******\n");
-		System.out.println("\n");
-		store.addDiscount("black-allstars", 2);
-		assertEquals(store.getShoeInfo("black-allstars").getDiscountedAmountOnStorage(), 2);
-		store.print();
-		System.out.println("\n");
-		System.out.println("*******testAddDiscount method finish*******\n");
-		System.out.println("\n");
+		try{
+			store.addDiscount("brown-blundstones", 1);
+			fail("NoShoesException not thrown");
+		}catch(NoShoesException e){
+			assertTrue(e instanceof NoShoesException);
+			store.add("black-allstars",1);
+			store.addDiscount("black-allstars",1);
+			assertEquals(store.take("black-allstars",true), BuyResult.Discounted_Price);
+		}
 	}
 
 }
