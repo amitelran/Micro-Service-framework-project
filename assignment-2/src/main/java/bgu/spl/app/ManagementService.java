@@ -149,7 +149,8 @@ public class ManagementService extends MicroService {
 			synchronized(orders){				
 				if(res!=null){
 					Store.getInstance().file(res);
-					Store.getInstance().add(shoeType, res.getAmountSold()-orders.get(shoeType).reserved);
+					if (res.getAmountSold()-orders.get(shoeType).reserved>=0)
+						Store.getInstance().add(shoeType, res.getAmountSold()-orders.get(shoeType).reserved);
 					
 					for(int i=0;i<res.getAmountSold()&&!orders.get(shoeType).requests.isEmpty();i++)
 						this.complete(orders.get(shoeType).requests.poll(), true);

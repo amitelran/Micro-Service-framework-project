@@ -100,7 +100,7 @@ public class Store {
 	 * @param amount - the discounted amount to add to storage of the given shoe type
 	 */
 	public synchronized void addDiscount(String shoeType, int amount) throws NoShoesException{
-		if (shoesInfo.containsKey(shoeType)){
+		if (shoesInfo.containsKey(shoeType)&&shoesInfo.get(shoeType).getAmountOnStorage()-shoesInfo.get(shoeType).getDiscountedAmountOnStorage()>=amount){
 			shoesInfo.get(shoeType).addDiscountedAmount(amount);
 		}
 		else{
