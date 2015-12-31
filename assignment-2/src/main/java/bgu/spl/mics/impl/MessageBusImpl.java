@@ -12,16 +12,28 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.Request;
 import bgu.spl.mics.RequestCompleted;
 
+/**
+ * The thread safe singleton implementation of the {@link #MessageBus(bgu.spl.mics)}.
+ */
 public class MessageBusImpl implements MessageBus {
 	
-	private Map<MicroService,ConcurrentLinkedQueue<Message>> registeredServices;		//each microService with it's own messages queue
-	private Map<Class<? extends Message>,ConcurrentRoundRobinQueue<MicroService>> messageSubscriptions;		//each message with it's round robin queue
-	private Map<Request<?>,MicroService> requesterMicroServices;		//each request with it's requester to respond with result
+	private Map<MicroService,ConcurrentLinkedQueue<Message>> registeredServices;	
+	private Map<Class<? extends Message>,ConcurrentRoundRobinQueue<MicroService>> messageSubscriptions;
+	private Map<Request<?>,MicroService> requesterMicroServices;	
 	
     private static class SingletonHolder {
         private static MessageBusImpl instance = new MessageBusImpl();
     }
     
+    /**
+     * The constructor of the {@code MessageBusImpl} declare three {@link ConcurrentHashMap}:
+     * registeredServices - A map consists of micro-services as a key, and for each micro-service it holds a 
+     * {@link ConcurrentLinkedQueue} of the micro-service messages as a value.
+     * messageSubscriptions - A map consists of messages as a key, and for each message it holds a 
+     * {@link #ConcurrentRoundRobinQueue(bgu.spl.mics.impl)} of the subscribed micro-services.
+     * requesterMicroServices - A map consists of requests as a key, and for each request, it holds
+     * the micro-service which sent the request, in order to reply the result to the requester easily.
+     */
     private MessageBusImpl() {
     	registeredServices = new ConcurrentHashMap<MicroService,ConcurrentLinkedQueue<Message>>();
     	messageSubscriptions = new ConcurrentHashMap<Class<? extends Message>,ConcurrentRoundRobinQueue<MicroService>>();
@@ -32,6 +44,12 @@ public class MessageBusImpl implements MessageBus {
         return SingletonHolder.instance;
     }
 
+    /**
+     * subscribes {@code m} to receive {@link Request}s of type {@code type}.
+     * <p>
+     * @param type the type to subscribe to
+     * @param m    the subscribing micro-service
+     */
 	@Override
 	public void subscribeRequest(Class<? extends Request<?>> type, MicroService m){
 		synchronized(messageSubscriptions){
@@ -41,6 +59,12 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
+	/**
+     * subscribes {@code m} to receive {@link Broadcast}s of type {@code type}.
+     * <p>
+     * @param type the type to subscribe to
+     * @param m    the subscribing micro-service
+     */
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		synchronized(messageSubscriptions){
@@ -50,6 +74,18 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
+	/**
+     * Notifying the MessageBus that the request {@code r} is completed and its
+     * result was {@code result}.
+     * When this method is called, the message-bus will implicitly add the
+     * special {@link RequestCompleted} message to the queue
+     * of the requesting micro-service, the RequestCompleted message will also
+     * contain the result of the request ({@code result}).
+     * <p>
+     * @param <T>    the type of the result expected by the completed request
+     * @param r      the completed request
+     * @param result the result of the completed request
+     */
 	@Override
 	public <T> void complete(Request<T> r, T result) {
 		registeredServices.get(requesterMicroServices.get(r)).add(new RequestCompleted<T>(r, result));
@@ -57,6 +93,12 @@ public class MessageBusImpl implements MessageBus {
 		
 	}
 
+	/**
+     * add the {@link Broadcast} {@code b} to the message queues of all the
+     * micro-services subscribed to {@code b.getClass()}.
+     * <p>
+     * @param b the message to add to the queues.
+     */
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		ConcurrentLinkedQueue<MicroService> bQueue = messageSubscriptions.get(b.getClass());
@@ -67,6 +109,16 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
+	/**
+     * add the {@link Request} {@code r} to the message queue of one of the
+     * micro-services subscribed to {@code r.getClass()} in a round-robin
+     * fashion.
+     * <p>
+     * @param r         the request to add to the queue.
+     * @param requester the {@link MicroService} sending {@code r}.
+     * @return true if there was at least one micro-service subscribed to
+     *         {@code r.getClass()} and false otherwise.
+     */
 	@Override
 	public boolean sendRequest(Request<?> r, MicroService requester) {
 		ConcurrentRoundRobinQueue<MicroService> rQueue = messageSubscriptions.get(r.getClass());
@@ -81,11 +133,24 @@ public class MessageBusImpl implements MessageBus {
 		return false;
 	}
 
+	/**
+     * allocates a message-queue for the {@link MicroService} {@code m}.
+     * <p>
+     * @param m the micro-service to create a queue for.
+     */
 	@Override
 	public void register(MicroService m) {
 		registeredServices.put(m, new ConcurrentLinkedQueue<Message>());
 	}
 
+	 /**
+     * remove the message queue allocated to {@code m} via the call to
+     * {@link #register(bgu.spl.mics.MicroService)} and clean all references
+     * related to {@code m} in this message-bus. If {@code m} was not
+     * registered, nothing should happen.
+     * <p>
+     * @param m the micro-service to unregister.
+     */
 	@Override
 	public void unregister(MicroService m) {
 		Iterator<ConcurrentRoundRobinQueue<MicroService>> it = messageSubscriptions.values().iterator();
@@ -97,6 +162,21 @@ public class MessageBusImpl implements MessageBus {
 		registeredServices.remove(m);
 	}
 
+	/**
+     * using this method, a <b>registered</b> micro-service can take message
+     * from its allocated queue.
+     * This method is blocking -meaning that if no messages
+     * are available in the micro-service queue it
+     * should wait until a message became available.
+     * The method should throw the {@link IllegalStateException} in the case
+     * where {@code m} was never registered.
+     * <p>
+     * @param m the micro-service requesting to take a message from its message
+     *          queue
+     * @return the next message in the {@code m}'s queue (blocking)
+     * @throws InterruptedException if interrupted while waiting for a message
+     *                              to became available.
+     */
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
 		ConcurrentLinkedQueue<Message> MQ=registeredServices.get(m);
