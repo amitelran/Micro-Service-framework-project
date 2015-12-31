@@ -9,7 +9,7 @@ import bgu.spl.mics.MicroService;
 /**
  * A micro-service which serves as a global system timer (handles the clock ticks in the system).
  * It is responsible for counting how much clock ticks passed since the beginning of its execution and 
- * notifying every other micro-service (that is subscribed to TickBroadcast) using TickBroadcast.
+ * notifying every other micro-service (that is subscribed to {@code TickBroadcast}) using {@code TickBroadcast}.
  */
 public class TimeService extends MicroService {
 	private int time;
@@ -22,7 +22,8 @@ public class TimeService extends MicroService {
 	 * 
 	 * @param speed - number of milliseconds each clock tick takes
 	 * @param duration - number of ticks before termination
-	 * @param barrier - a cyclicBarrier intended to count all live threads before global-clock execution/termination
+	 * @param barrier - a {@link CyclicBarrier} intended to count all live threads before global-clock
+	 * execution/termination
 	 */
 	public TimeService(int speed,int duration,CyclicBarrier barrier) {
 		super("timer");
@@ -34,7 +35,7 @@ public class TimeService extends MicroService {
 	
 	/**
 	 * A thread which runs the time clock as long as current tick < duration.
-	 * While running, the ticker sends TickBroadcast to let all other micro-services about global time.
+	 * While running, the ticker sends {@code TickBroadcast} to notify all other micro-services about global time.
 	 * When reaching duration with current tick, the ticker sends a termination message and waiting for all
 	 * other working threads to finish their tasks before terminating the program.
 	 */
@@ -58,8 +59,8 @@ public class TimeService extends MicroService {
 	}
 
 	/**
-	 * A method which uses cyclicBarrier to count all supposed-to-be working threads before 
-	 * running the invoking the timer, causing the entire system to run the given program.
+	 * A method which uses {@link CyclicBarrier} to count all working threads before invoking the timer,
+	 * causing the entire system to run the given program.
 	 * The method schedules the ticking at fixed rate.
 	 */
 	@Override
@@ -75,7 +76,7 @@ public class TimeService extends MicroService {
 	
 	
 	/**
-	 * A setter method which recieves a cyclic barrier to set to the timer
+	 * A setter method which receives a {@link CyclicBarrier} to set to the timer.
 	 * @param barr - the cyclicBarrier to set for timer
 	 */
 	public void setBarrier(CyclicBarrier barr){

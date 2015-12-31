@@ -14,8 +14,8 @@ import java.util.concurrent.CyclicBarrier;
 public class ShoeStoreRunner {
 	
 	/**
-	 * Reads the JSON input file, setting a cyclicBarrier with all participating services, initializing
-	 * the store and all of the services, and runs all of the threads.
+	 * Reads the JSON input file, setting a {@link CyclicBarrier} with all participating services as 
+	 * an argument, initializing the {@code Store} and all of the services, and runs all of the threads.
 	 */
     public static void main(String[] args) {
     	if(args.length>0) {
@@ -31,6 +31,7 @@ public class ShoeStoreRunner {
     /**
 	 * A method which gets a JSON input file and parse it
 	 * @param inputFile - a JSON file to read given as an input
+	 * @return Parsed JSON file
 	 */
 	public static JsonParser readJson(File inputFile) {
     	File file = inputFile;
@@ -48,10 +49,10 @@ public class ShoeStoreRunner {
     }
 	
 	/**
-	 * Getting the list of all factories and shared cyclicBarrier, sets the barrier for each factory,
-	 * and runs them
+	 * Getting the list of all factories and shared {@link CyclicBarrier}, sets the barrier for each factory,
+	 * and runs them.
 	 * @param factories - a list of all participating factories
-	 * @param barrier - a shared cyclicBarrier for all services
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
 	 */
     private static void runFactories(List<ShoeFactoryService> factories, CyclicBarrier barrier){
     	for (ShoeFactoryService factory: factories){
@@ -62,10 +63,10 @@ public class ShoeStoreRunner {
     }
     
     /**
-	 * Getting the list of all WebSiteClientServices and shared cyclicBarrier, sets the barrier for each
-	 * WebSiteClientService, and runs them
-	 * @param clients - an array of all participating WebsiteClientServices
-	 * @param barrier - a shared cyclicBarrier for all services
+	 * Getting the list of all {@code WebSiteClientServices} and shared {@link CyclicBarrier},
+	 * sets the barrier for each {@code WebSiteClientService}, and runs them.
+	 * @param clients - an array of all participating {@code WebsiteClientServices}
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
 	 */
     private static void runClients(WebsiteClientService[] clients, CyclicBarrier barrier){
     	for (WebsiteClientService client: clients){
@@ -76,10 +77,10 @@ public class ShoeStoreRunner {
     }
     
     /**
-	 * Getting the list of all SellingServices and shared cyclicBarrier, sets the barrier for each
-	 * SellingService, and runs them
-	 * @param sellers - a list of all participating SellingServices
-	 * @param barrier - a shared cyclicBarrier for all services
+	 * Getting the list of all {@code SellingServices} and shared {@link CyclicBarrier}, sets the barrier for each
+	 * {@code SellingService}, and runs them.
+	 * @param sellers - a list of all participating {@code SellingServices}
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
 	 */
     private static void runSellers(List<SellingService> sellers, CyclicBarrier barrier) {
     	for (SellingService seller: sellers){
@@ -90,10 +91,10 @@ public class ShoeStoreRunner {
 	}
     
     /**
-	 * Getting a ManagementService and shared cyclicBarrier, sets the barrier the ManagementService,
-	 * and runs the manager
-	 * @param manager - the participating ManagementService
-	 * @param barrier - a shared cyclicBarrier for all services
+	 * Getting a {@code ManagementService} and shared {@link CyclicBarrier}, sets the barrier for the 
+	 * {@code ManagementService}, and runs the manager.
+	 * @param manager - the participating {@code ManagementService}
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
 	 */
     private static void runManager(ManagementService manager, CyclicBarrier barrier) {
     	manager.setBarrier(barrier);
@@ -102,9 +103,9 @@ public class ShoeStoreRunner {
 	}
     
     /**
-	 * Getting the TimeService and shared cyclicBarrier, sets the barrier for the timer, and runs it
-	 * @param time - the TimeService set for the program
-	 * @param barrier - a shared cyclicBarrier for all services
+	 * Getting the {@code TimeService} and shared {@link CyclicBarrier}, sets the barrier for the timer, and runs it.
+	 * @param time - the {@code TimeService} set for the program
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
 	 */
     private static void runTimer(TimeService time, CyclicBarrier barrier) {
     	time.setBarrier(barrier);
@@ -113,9 +114,9 @@ public class ShoeStoreRunner {
 	}
     
     /**
-	 * A method used for running all of the participating services
+	 * A method used for running all of the participating services.
 	 * @param input - the JSON input file data
-	 * @param barrier - a shared cyclicBarrier for all services
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
 	 */
     private static void runServices(JsonParser input,CyclicBarrier barrier) {
     	runFactories(input.getServices().getFactories(), barrier);

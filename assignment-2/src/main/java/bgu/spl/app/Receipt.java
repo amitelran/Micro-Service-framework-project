@@ -2,7 +2,7 @@ package bgu.spl.app;
 
 /**
  * An object representing a receipt that should be sent to a client after buying a shoe (when the client’s
- * PurchaseRequest completed)
+ * {@code PurchaseRequest} is complete).
  */
 public class Receipt {
 	
@@ -34,42 +34,42 @@ public class Receipt {
 	}
 	
 	/**
-	 * getter set to return the supplier of the shoe for the specific receipt
+	 * @return Supplier of the shoe for the specific receipt.
 	 */
 	public String getSeller(){return seller;}
 	
 	/**
-	 * getter set to return the customer name for the specific receipt
+	 * @return Customer name for the specific receipt.
 	 */
 	public String getCustomer(){return customer;}
 	
 	/**
-	 * getter set to return the shoe type for the specific receipt
+	 * @return Shoe type for the specific receipt.
 	 */
 	public String getType(){return shoeType;}
 	
 	/**
-	 * getter set to return whether the shoe has been sold on discount or not
+	 * @return Whether the shoe has been sold on discount or not.
 	 */
 	public boolean isDiscounted(){return discount;}
 	
 	/**
-	 * getter set to return the tick in which the shoe has been supplied
+	 * @return Tick in which the shoe has been supplied.
 	 */
 	public int getIssuedTick(){return issuedTick;}
 	
 	/**
-	 * getter set to return the tick in which the shoe has been requested
+	 * @return Tick in which the shoe has been requested.
 	 */
 	public int getRequestTick(){return requestTick;}
 	
 	/**
-	 * getter set to return the amount of shoes that have been sold for the specific receipt
+	 * @return Amount of shoes that have been sold for the specific receipt.
 	 */
 	public int getAmountSold(){return amountSold;}
 	
 	/**
-	 * A method set to print the specified receipt within a structured format
+	 * A method set to print the specified receipt within a structured format.
 	 */
 	public void print(){
 		System.out.printf("%s\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%-62.60s|\n%s\n","======================Shoe Sale Receipt========================"

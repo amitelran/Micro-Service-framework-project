@@ -20,12 +20,12 @@ public class NewDiscountBroadcast implements Broadcast {
 	}
 	
 	/**
-	 * getter set to return the shoeType for the specific new discount
+	 * @return ShoeType for the specific new discount.
 	 */
 	public String getShoeType(){return shoeType;}
 	
 	/**
-	 * getter set to return the amount of shoes on discount for the specific new discount
+	 * @return Amount of shoes on discount for the specific new discount.
 	 */
 	public int getAmount(){return amount;}
 }

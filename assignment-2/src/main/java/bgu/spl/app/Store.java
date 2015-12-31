@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A thread safe singleton which holds a collection of the shoe types being offered and a collection of 
+ * A {@link thread safe singleton} which holds a collection of the shoe types being offered and a collection of 
  * the receipts issued to and by the store.
  */
 public class Store {
@@ -22,9 +22,9 @@ public class Store {
     }
 	 
 	/**
-	 * @param shoesInfo - a concurrentHashMap which holds the shoe types as a key and the shoes information
+	 * @param shoesInfo - a {@link ConcurrentHashMap} which holds the shoe types as a key and the shoes information
 	 * as value for each shoe type.
-	 * @param issuedReceipts - a linked list of receipts which holds the receipts issued to and by the store.
+	 * @param issuedReceipts - a {@link LinkedList} of receipts which holds the receipts issued to and by the store.
 	 */
 	private Store(){
 		shoesInfo=new ConcurrentHashMap<String,ShoeStorageInfo>();
@@ -43,7 +43,7 @@ public class Store {
 	}
 	 
 	/**
-	 * An enum which represents all the possible outcomes of purchase execution
+	 * An {@link Enum} which represents all the possible outcomes of purchase execution.
 	 */
 	public enum BuyResult{
 		Not_In_Stock, Not_On_Discount, Regular_Price, Discounted_Price;
@@ -51,10 +51,12 @@ public class Store {
 	 
 	/**
 	 * Method that receives a discounted or regular shoe to take from the storage and returns 
-	 * the outcome based on the storage status and purchase demand
+	 * the outcome based on the storage status and purchase demand.
 	 * @param shoeType - the shoe to take from storage
 	 * @param onlyDiscount - a boolean value which represents whether the requested shoe is 
 	 * demanded discounted or not. 
+	 * @return A {@code BuyResult} matching value
+	 * @throws {@code NoShoesException} 
 	 */
 	public synchronized BuyResult take(String shoeType, boolean onlyDiscount) throws Exception{
 		ShoeStorageInfo shoe = shoesInfo.get(shoeType);
@@ -92,7 +94,7 @@ public class Store {
 	}
 
 	/**
-	 * Method which tries to add a discounted amount of shoe to the storage, and throws NoShoesException
+	 * Method which tries to add a discounted amount of shoe to the storage, and @throws NoShoesException
 	 * if the regular amount of the same shoe in the storage is lower than the given discounted amount to be added.
 	 * @param shoeType - the type of shoe to add the discounted amount in the storage to
 	 * @param amount - the discounted amount to add to storage of the given shoe type
@@ -107,7 +109,7 @@ public class Store {
 	}
 
 	/**
-	 * Method used to add a given receipt to the issued receipts list of the store
+	 * Method used to add a given {@code Receipt} to the issued receipts list of the store.
 	 * @param receipt - the receipt to add to the list
 	 */
 	public synchronized void file(Receipt receipt){
@@ -118,7 +120,7 @@ public class Store {
 	 * This method prints to the standard output the following information:
 	 * • For each item on stock - its name, amount and discountedAmount
 	 * • For each receipt filed in the store - all of its fields
-	 * The method prints the data in a structured and organized format
+	 * The method prints the data in a structured and organized format.
 	 */
 	public synchronized void print(){		
 		int i=1;

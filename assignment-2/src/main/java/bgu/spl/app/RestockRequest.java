@@ -3,7 +3,7 @@ package bgu.spl.app;
 import bgu.spl.mics.Request;
 
 /**
- * A request that is sent by the selling service to the store manager so that he
+ * A request that is sent by the {@code SellingService} to the store manager so that he
  * will know that he needs to order new shoes from a factory.
  */
 public class RestockRequest implements Request<Boolean> {
@@ -20,12 +20,12 @@ public class RestockRequest implements Request<Boolean> {
 	}
 	
 	/**
-	 * getter set to return the shoeType for the specific restockRequest
+	 * @return ShoeType for the specific {@code RestockRequest}.
 	 */
 	public String getShoeType(){return shoeType;}
 	
 	/**
-	 * getter set to return the amount of shoeType shoes for the specific restockRequest
+	 * @return Amount of shoeType shoes for the specific {@code RestockRequest}.
 	 */
 	public int getAmount(){return amount;}
 }
