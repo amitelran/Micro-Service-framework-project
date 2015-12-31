@@ -36,9 +36,11 @@ public class JsonParser{
 	
 	/**
 	 * A method which gets and reads the input data, and according to it sets the initial storage data and services.
-	 * The method counts the number of participating micro-services (extra 2 stands for 
-	 * ManagementService and TimeService).
+	 * The method counts the number of participating micro-services (the extra 2 stands for 
+	 * {@code ManagementService} and {@code TimeService}).
 	 * @param in - input data
+	 * @return JsonParser object
+	 * @throws IOException
 	 */
 	public JsonParser readInput(InputStream in) throws IOException {
 	        JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
@@ -60,9 +62,10 @@ public class JsonParser{
 	}
 
 	/**
-	 * A method which gets and reads the input data for a single shoe type, and returns its info
-	 * as a ShoeStorageInfo object.
+	 * A method which gets and reads the input data for a single shoe type.
 	 * @param reader - JSON file reader
+	 * @return {@code ShoeStorageInfo} object for a single shoe type
+	 * @throws IOException
 	 */
 	public ShoeStorageInfo readShoe(JsonReader reader) throws IOException {
 	    	String shoeType=null;;
@@ -83,9 +86,10 @@ public class JsonParser{
 	}
 	    
 	/**
-	 * A method which gets and reads the input data for all shoes, and returns it as a 
-	 * ShoeStorageInfo array.
+	 * A method which gets and reads the input data for all shoes.
 	 * @param reader - JSON file reader
+	 * @return array of {@code ShoeStorageInfo} for each given shoe data
+	 * @throws IOException
 	 */
 	 public ShoeStorageInfo[] readShoesArray(JsonReader reader) throws IOException {	
 	        List<ShoeStorageInfo> shoes = new ArrayList<ShoeStorageInfo>();
@@ -99,9 +103,10 @@ public class JsonParser{
 	 }
 	    
 	 /**
-	  * A method which gets and reads the input data for timer, and returns a TimeService corresponding to the
-	  * given data.
+	  * A method which gets and reads the input data for timer.
 	  * @param reader - JSON file reader
+	  * @return {@code TimeService} corresponding to the given data
+	  * @throws IOException
 	  */
 	 public TimeService readTimer(JsonReader reader) throws IOException {
 	    	int speed=-1;
@@ -120,11 +125,12 @@ public class JsonParser{
 	 }
 	 
 	 /**
-	 * A method which gets and reads the input data for ManagementService, and returns a ManagementService
-	 * corresponding to the given data.
+	 * A method which gets and reads the input data for {@code ManagementService}.
 	 * @param reader - JSON file reader
+	 * @return ManagementService corresponding to the given data
+	 * @throws IOException
 	 */
-	 public ManagementService readManager(JsonReader reader) throws IOException {	//reading management service
+	 public ManagementService readManager(JsonReader reader) throws IOException {
 	    	List<DiscountSchedule> discountSchedule = new ArrayList<DiscountSchedule>();
 	        reader.beginObject();
 	        String name = reader.nextName();
@@ -140,11 +146,12 @@ public class JsonParser{
 	    }
 	    
 	 /**
-	  * A method which gets and reads the input data for DiscountSchedule, and returns a DiscountSchedule
-	  * corresponding with the given data.
+	  * A method which gets and reads the input data for {@code DiscountSchedule}.
 	  * @param reader - JSON file reader
+	  * @return discount schedule
+	  * @throws IOException
 	  */
-	 private DiscountSchedule readDiscountSced(JsonReader reader) throws IOException {		//discount schedule reader
+	 private DiscountSchedule readDiscountSced(JsonReader reader) throws IOException {		
 			String shoeType=null;
 	    	int amount=-1;
 	    	int tick=-1;
@@ -164,11 +171,12 @@ public class JsonParser{
 	 }
 		
 	 /**
-	  * A method which gets and reads the input data for all factory services, and returns it as a list
-	  * of ShoeFactoryService. 
+	  * A method which gets and reads the input data for all {@code ShoeFactoryServices}.
 	  * @param reader - JSON file reader
+	  * @return a list of all ShoeFactoryServices
+	  * @throws IOException
 	  */
-	 public List<ShoeFactoryService> readFactories(JsonReader reader) throws IOException {	//shoe factories reader
+	 public List<ShoeFactoryService> readFactories(JsonReader reader) throws IOException {
 		    List<ShoeFactoryService> factories = new ArrayList<ShoeFactoryService>();
 		    int amount = reader.nextInt();
 		    factoriesAmount=amount;
@@ -179,9 +187,10 @@ public class JsonParser{
 	 }
 		
 	 /**
-	  * A method which gets and reads the input data for all selling services, and returns it as a list
-	  * of SellingService elements.
+	  * A method which gets and reads the input data for all {@code SellingServices}.
 	  * @param reader - JSON file reader
+	  * @return a list of all SellingServices
+	  * @throws IOException
 	  */
 	 public List<SellingService> readSellers(JsonReader reader) throws IOException {
 		    List<SellingService> sellers = new ArrayList<SellingService>();
@@ -193,8 +202,10 @@ public class JsonParser{
 	 }
 		 
 	 /**
-	  * A method which gets and reads the input data for wishlist, and returns it as a set of strings.
+	  * A method which gets and reads the input data for wishlist.
 	  * @param reader - JSON file reader
+	  * @return wish list set as a set of strings
+	  * @throws IOException
 	  */
 	 private  Set<String> readWishList(JsonReader reader) throws IOException {
 			Set<String> wishList = new HashSet<>(); 
@@ -208,9 +219,10 @@ public class JsonParser{
 	 }
 		
 	 /**
-	  * A method which gets and reads the input data for a single purchase schedule, and returns it as a 
-	  * PurchaseSchedule object.
+	  * A method which gets and reads the input data for a single purchase schedule.
 	  * @param reader - JSON file reader
+	  * @return a single purchase schedule
+	  * @throws IOException
 	  */
 	 private PurchaseSchedule readPurchaseSced(JsonReader reader) throws IOException {
 			String shoeType=null;;
@@ -229,9 +241,10 @@ public class JsonParser{
 	 }
 		 
 	 /**
-	  * A method which gets and reads the input data for all purchase schedules, and returns it as a list
-	  * of PurchaseSchedule elements.
+	  * A method which gets and reads the input data for all purchase schedules.
 	  * @param reader - JSON file reader
+	  * @return a list of all purchase schedules
+	  * @throws IOExcpetion
 	  */
 	 public List<PurchaseSchedule> readPurchaseScedList(JsonReader reader) throws IOException {	
 		    List<PurchaseSchedule> list = new ArrayList<PurchaseSchedule>();
@@ -244,9 +257,10 @@ public class JsonParser{
 	 }
 		
 	 /**
-	  * A method which gets and reads the input data for a single clients, and returns it as 
-	  * WebSiteClientService object.
+	  * A method which gets and reads the input data for a single client.
 	  * @param reader - JSON file reader
+	  * @return single client data
+	  * @throws IOException
 	  */
 	 public WebsiteClientService readClient(JsonReader reader) throws IOException {	
 			 String name1 = null;
@@ -268,9 +282,10 @@ public class JsonParser{
 	 }
 		 
 	 /**
-	  * A method which gets and reads the input data for all clients, and returns it as an array of
-	  * WebSiteClientService elements.
+	  * A method which gets and reads the input data for all clients.
 	  * @param reader - JSON file reader
+	  * @return array of all clients
+	  * @throws IOException
 	  */
 	 public WebsiteClientService[] readCustomers(JsonReader reader) throws IOException {
 		        List<WebsiteClientService> customers = new ArrayList<WebsiteClientService>();
@@ -285,8 +300,10 @@ public class JsonParser{
 	 }
 		 
 	 /**
-	  * A method which gets and reads the input data for all services, and returns it as Services object.
+	  * A method which gets and reads the input data for all services.
 	  * @param reader - JSON file reader
+	  * @return A collection of all services
+	  * @throws IOException
 	  */
 	 public Services readServices(JsonReader reader) throws IOException {
 			  List<SellingService> sellers = null;
@@ -314,42 +331,42 @@ public class JsonParser{
 	 }
 		
 	 /**
-	  * A getter method for the number of SellingServices
+	  * @return Number of {@code SellingServices}.
 	  */
 	 public int getSellersAmount() {
 		 return sellersAmount;
 	 }
 	 
 	 /**
-	  * A getter method for the number of ShoeFactoryServices
+	  * @return Number of {@code ShoeFactoryServices}.
 	  */
 	 public int getFactoriesAmount() {
 		 return factoriesAmount;
 	 }
 	 
 	 /**
-	  * A getter method for the number of WebClientServices
+	  * @return Number of {@code WebsiteClientServices}.
 	  */
 	 public int getClientsAmount() {
 		 return clientsAmount;
 	 }
 	 
 	 /**
-	  * A getter method for the total number of services
+	  * @return Number of all services.
 	  */
 	 public int getTotalAmount() {
 		 return totalAmount;
 	 }
 	 
 	 /**
-	  * A getter method for all services as a Services object
+	  * @return Collection of all services set as a {@code Services} object.
 	  */
 	 public Services getServices() {
 		 return services;
 	 }
 	 
 	 /**
-	  * A getter method for initial storage data
+	  * @return Initial storage data.
 	  */
 	 public ShoeStorageInfo[] getInitialStorage() {
 		 return initialStorage;

@@ -17,14 +17,14 @@ public class PurchaseSchedule {
 	}
 	
 	/**
-	 * getter set to return the shoeType for the specific purchase
+	 * @return ShoeType for the specific purchase.
 	 */
 	public String getShoeType(){
 		return shoeType;
 	}
 	
 	/**
-	 * getter set to return the tick on which to send the PurchaseOrderRequest
+	 * @return Tick on which to send the {@code PurchaseOrderRequest}.
 	 */
 	public int getTick(){
 		return tick;

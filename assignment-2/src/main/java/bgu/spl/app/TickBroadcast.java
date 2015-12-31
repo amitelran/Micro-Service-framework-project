@@ -16,7 +16,7 @@ public class TickBroadcast implements Broadcast {
 	}
 	
 	/**
-	 * getter set to return current tick
+	 * @return Current tick.
 	 */
 	public int getTick(){return tick;}
 }

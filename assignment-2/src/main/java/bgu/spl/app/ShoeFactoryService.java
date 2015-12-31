@@ -7,6 +7,13 @@ import java.util.concurrent.CyclicBarrier;
 
 import bgu.spl.mics.MicroService;
 
+/**
+ * This micro-service describes a shoe factory that manufactures shoes for the store.
+ * This micro-service handles the {@code ManufacturingOrderRequest} and it takes it exactly 1 tick to manufacture
+ * a single shoe (starting from the tick following the request). When done manufacturing,
+ * this micro-service completes the request with a receipt (which has the value “store” in the
+ * customer field and “discount” = false). The micro-service cannot manufacture more than one shoe per tick.
+ */
 public class ShoeFactoryService extends MicroService{
 	
 	private Integer currentTick;
@@ -15,6 +22,14 @@ public class ShoeFactoryService extends MicroService{
 	private int finalShoeTick;
 	private CyclicBarrier barrier;
 	
+	/**
+	 * The constructor sets the {@code ShoeFactoryService} name, starting tick, a counter of total ticks to wait
+	 * before starting a new manufacture request according to existing requests, current finishing manufacture
+	 * requests tick, a shared {@link CyclicBarrier} and a {@link ConcurrentHashMap} which gets a
+	 * {@code ManufacturingOrderRequest} as a key, and its value is the tick to complete the manufacture request.
+	 * @param name - the name of the {@code ShoeFactoryService}
+	 * @param barrier - a shared {@link CyclicBarrier} for all services
+	 */
 	public ShoeFactoryService(String name,CyclicBarrier barrier){
 		super(name);
 		currentTick=1;
@@ -24,6 +39,15 @@ public class ShoeFactoryService extends MicroService{
 		this.barrier = barrier;
 	}
 
+	/**
+	 * Initializes the {@code ShoeFactoryService}.
+	 * It subscribes the {@code ShoeFactoryService} for {@code TickBroadcast}, {@code ManufacturingOrderRequest}
+	 * and {@code TerminationBroadcast}.
+	 * Every tick it removes the completed {@code ManufacturingOrderRequests} and sends a corresponding receipt.
+	 * It gets {@code ManufcaturingOrderRequests}, calculates the tick to finish the manufacturing according to
+	 * other on-going manufacturing requests. Every tick it removes the completed {@code ManufacturingOrderRequests}
+	 * and sends a corresponding receipt.
+	 */
 	@Override
 	protected void initialize() {
 		log(getName() + " is starting");
@@ -33,7 +57,7 @@ public class ShoeFactoryService extends MicroService{
 			} catch (Exception e) {}
 			this.terminate();
 		});
-		this.subscribeBroadcast(TickBroadcast.class, b->{			//getting current tick
+		this.subscribeBroadcast(TickBroadcast.class, b->{		
 			currentTick=b.getTick();
 			if(totalTicks>0){
 				totalTicks--;
@@ -48,7 +72,7 @@ public class ShoeFactoryService extends MicroService{
 				}
 			}
 		});
-		this.subscribeRequest(ManufacturingOrderRequest.class, manuReq->{			//subscribing to manufacturing requests
+		this.subscribeRequest(ManufacturingOrderRequest.class, manuReq->{		
 			log("tick #" + currentTick + ": " + this.getName() + 
 					" got a Manufacturing Order Request for " + manuReq.getAmount() + 
 					" pairs of " + manuReq.getType() + ". Adding to manufacturing schedule queue...");
@@ -65,6 +89,10 @@ public class ShoeFactoryService extends MicroService{
 		} catch (Exception e) {}
 	}
 	
+	/**
+	 * A setter which sets the shared {@link CyclicBarrier} to the {@code ShoeFactoryService}.
+	 * @param barrier - a shared {@link} CyclicBarrier for all services
+	 */
 	public void setBarrier(CyclicBarrier barr){
 		this.barrier=barr;
 	}

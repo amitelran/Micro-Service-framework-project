@@ -22,17 +22,17 @@ public class DiscountSchedule {
 	}
 	
 	/**
-	 * getter set to return the shoeType for the specific discountSchedule
+	 * @return shoeType for the specific {@code DiscountSchedule}.
 	 */
 	public String getShoeType(){return shoeType;}
 	
 	/**
-	 * getter set to return the tick from which the discount is available for the specific discountSchedule
+	 * @return tick from which the discount is available for the specific {@code DiscountSchedule}.
 	 */
 	public int getTick(){return tick;}
 	
 	/**
-	 * getter set to return the amount of shoes on discount for the specific discountSchedule
+	 * @return amount of shoes on discount for the specific {@code DiscountSchedule}.
 	 */
 	public int getAmount(){return amount;}
 }
