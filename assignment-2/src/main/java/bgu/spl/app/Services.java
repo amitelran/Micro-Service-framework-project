@@ -15,11 +15,11 @@ public class Services{
     private List<ShoeFactoryService> factories;
     
     /**
-     * @param sellers - a list of all to-be-participating SellingServices
-     * @param time - the TimeService of the program
-     * @param manager - the ManagementService of the program
-     * @param customers - an array of all to-be-participating WebsiteClientServices
-     * @param factories - a list of all to-be-participating factory services
+     * @param sellers - a list of all to-be-participating {@code SellingServices}
+     * @param time - the {@code TimeService} of the program
+     * @param manager - the {@code ManagementService} of the program
+     * @param customers - an array of all to-be-participating {@code WebsiteClientServices}
+     * @param factories - a list of all to-be-participating {@code ShoeFactoryServices}
      */
 	public Services(List<SellingService> sellers, TimeService time, ManagementService manager,
 		WebsiteClientService[] customers, List<ShoeFactoryService> factories) {
@@ -31,35 +31,35 @@ public class Services{
 	}
 	
 	/**
-	 * A getter which returns the list of all SellingServices
+	 * @return List of all {@code SellingServices}.
 	 */
     public List<SellingService> getSellers() {
 		return sellers;
 	}
 
     /**
-	 * A getter which returns the participating timeService
+	 * @return Participating {@code TimeService}.
 	 */
 	public TimeService getTime() {
 		return time;
 	}
 
 	/**
-	 * A getter which returns the participating ManagementService 
+	 * @return Participating {@code ManagementService}.
 	 */
 	public ManagementService getManager() {
 		return manager;
 	}
 
 	/**
-	 * A getter which returns the array of all participating WebSiteClientServices
+	 * @return Array of all participating {@code WebSiteClientServices}.
 	 */
 	public WebsiteClientService[] getCustomers() {
 		return customers;
 	}
 
 	/**
-	 * A getter which returns the list of all participating ShoeFactoryServices
+	 * @return List of all participating {@code ShoeFactoryServices}.
 	 */
 	public List<ShoeFactoryService> getFactories() {
 		return factories;

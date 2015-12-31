@@ -37,6 +37,8 @@ public abstract class MicroService implements Runnable {
     private Map<Request<?>,Callback<?>> completedReplyCallbacks;
 
     /**
+     * Sets the micro-service with a name, {@link Map} for its messages and {@link Callback} replies,
+     * {@link Map}  for requests and {@link Callback} replies, and a {@link Logger}.
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
      */
@@ -165,8 +167,10 @@ public abstract class MicroService implements Runnable {
     }
 
     /**
-     * the entry point of the micro-service. TODO: you must complete this code
-     * otherwise you will end up in an infinite loop.
+     * The entry point of the micro-service.
+     * The micro-service is registered to the {@link #MessageBusImpl(bgu.spl.mics.impl)} and initializes itself
+     * using the {@code initialize} method. As long as the micro-service is alive, it keeps getting and sending
+     * messages using the message-bus.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -187,7 +191,6 @@ public abstract class MicroService implements Runnable {
 				}
 					
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         }
