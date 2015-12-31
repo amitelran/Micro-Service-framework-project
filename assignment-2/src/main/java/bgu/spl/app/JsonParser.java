@@ -8,6 +8,14 @@ import java.util.List;
 import java.util.Set;
 import com.google.gson.stream.JsonReader;
 
+import bgu.spl.app.microservices.ManagementService;
+import bgu.spl.app.microservices.SellingService;
+import bgu.spl.app.microservices.ShoeFactoryService;
+import bgu.spl.app.microservices.TimeService;
+import bgu.spl.app.microservices.WebsiteClientService;
+import bgu.spl.app.schedules.DiscountSchedule;
+import bgu.spl.app.schedules.PurchaseSchedule;
+
 /**
  * A class used for parsing JSON files 
  */

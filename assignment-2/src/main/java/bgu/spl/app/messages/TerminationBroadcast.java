@@ -1,4 +1,4 @@
-package bgu.spl.app;
+package bgu.spl.app.messages;
 
 import bgu.spl.mics.Broadcast;
 

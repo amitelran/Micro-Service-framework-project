@@ -1,8 +1,14 @@
-package bgu.spl.app;
+package bgu.spl.app.microservices;
 
 import java.util.concurrent.CyclicBarrier;
 
+import bgu.spl.app.Receipt;
+import bgu.spl.app.Store;
 import bgu.spl.app.Store.BuyResult;
+import bgu.spl.app.messages.PurchaseOrderRequest;
+import bgu.spl.app.messages.RestockRequest;
+import bgu.spl.app.messages.TerminationBroadcast;
+import bgu.spl.app.messages.TickBroadcast;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -54,47 +60,51 @@ public class SellingService extends MicroService {
 			} catch (Exception e) {}
 			this.terminate();
 		});
-		
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
 		});
 		subscribeRequest(PurchaseOrderRequest.class, purReq -> {
-			log("tick #" + currentTick + ": "+ this.getName() + " got a purchase request for: "+purReq.getType() + ( (purReq.onlyOnDiscount()) ? " (only on discount!)" : ""));
-			BuyResult result;
-			try {
-				result = Store.getInstance().take(purReq.getType(), purReq.onlyOnDiscount());
-				if (result == BuyResult.Regular_Price || result == BuyResult.Discounted_Price){
-					Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), ( (result == BuyResult.Discounted_Price) ? true : false) , this.currentTick, purReq.getRequestedTime(), 1);
-					log("tick #" + currentTick + ": " + this.getName() + " sold one pair of " + purReq.getType() + " (on discount: " + ( (result == BuyResult.Discounted_Price) ? "yes" : "no") +")");
-					Store.getInstance().file(rec);
-					this.complete(purReq,rec);
-				}
-				else if (result == BuyResult.Not_On_Discount){
-					log("tick #" + currentTick + ": " + this.getName() + " could not sell " + purReq.getType() + " because it doesn't have a discount");
-					this.complete(purReq,null);
-				}
-				else{
-					this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {
-						if (ans==false){
-							log("tick #" + currentTick + ": " + this.getName() + " could not sell " + purReq.getType() + " because restock request got refused");
-							this.complete(purReq, null);
-						}
-						else{
-							Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), false, this.currentTick, purReq.getRequestedTime(), 1);
-							Store.getInstance().file(rec);
-							this.complete(purReq,rec);
-						}
-					});
-	            }
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
+			purchaseRequestHandler(purReq);
         });
-
 		try {
 			barrier.await();
 		} catch (Exception e) {}
+	}
+	
+	private void purchaseRequestHandler(PurchaseOrderRequest purReq){
+		log(curTickLogPrefix()+ this.getName() + " got a purchase request for: "+purReq.getType() + ( (purReq.onlyOnDiscount()) ? " (only on discount!)" : ""));
+		BuyResult result;
+		try {
+			result = Store.getInstance().take(purReq.getType(), purReq.onlyOnDiscount());
+			if (result == BuyResult.Regular_Price || result == BuyResult.Discounted_Price){
+				Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), ( (result == BuyResult.Discounted_Price) ? true : false) , this.currentTick, purReq.getRequestedTime(), 1);
+				log(curTickLogPrefix() + this.getName() + " sold one pair of " + purReq.getType() + " (on discount: " + ( (result == BuyResult.Discounted_Price) ? "yes" : "no") +")");
+				Store.getInstance().file(rec);
+				this.complete(purReq,rec);
+			}
+			else if (result == BuyResult.Not_On_Discount){
+				log(curTickLogPrefix() + this.getName() + " could not sell " + purReq.getType() + " because it doesn't have a discount");
+				this.complete(purReq,null);
+			}
+			else if(!purReq.onlyOnDiscount()){
+				this.sendRequest(new RestockRequest(purReq.getType(),1), ans -> {
+					if (ans==false){
+						log(curTickLogPrefix() + this.getName() + " could not sell " + purReq.getType() + " because restock request got refused");
+						this.complete(purReq, null);
+					}
+					else{
+						Receipt rec = new Receipt(this.getName(), purReq.getSenderName(), purReq.getType(), false, this.currentTick, purReq.getRequestedTime(), 1);
+						Store.getInstance().file(rec);
+						this.complete(purReq,rec);
+					}
+				});
+            }
+		}
+		catch (Exception e) {e.printStackTrace();}
+	}
+	
+	private String curTickLogPrefix(){
+		return "tick #" + currentTick + ": ";
 	}
 	
 	/**

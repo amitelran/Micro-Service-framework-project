@@ -1,4 +1,4 @@
-package bgu.spl.app;
+package bgu.spl.app.schedules;
 
 /**
  * An object which describes a schedule of a single discount that the manager will add to a specific

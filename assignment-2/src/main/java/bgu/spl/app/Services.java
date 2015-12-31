@@ -2,6 +2,12 @@ package bgu.spl.app;
 
 import java.util.List;
 
+import bgu.spl.app.microservices.ManagementService;
+import bgu.spl.app.microservices.SellingService;
+import bgu.spl.app.microservices.ShoeFactoryService;
+import bgu.spl.app.microservices.TimeService;
+import bgu.spl.app.microservices.WebsiteClientService;
+
 /**
  * An object used in order to help with parsing the JSON files by making a collection of all of
  * the program participating services.

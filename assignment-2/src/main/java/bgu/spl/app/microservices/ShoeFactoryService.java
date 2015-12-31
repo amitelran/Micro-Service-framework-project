@@ -1,10 +1,14 @@
-package bgu.spl.app;
+package bgu.spl.app.microservices;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 
+import bgu.spl.app.Receipt;
+import bgu.spl.app.messages.ManufacturingOrderRequest;
+import bgu.spl.app.messages.TerminationBroadcast;
+import bgu.spl.app.messages.TickBroadcast;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -59,35 +63,43 @@ public class ShoeFactoryService extends MicroService{
 		});
 		this.subscribeBroadcast(TickBroadcast.class, b->{		
 			currentTick=b.getTick();
-			if(totalTicks>0){
-				totalTicks--;
-				for(Entry<ManufacturingOrderRequest,Integer> e : ordersFinalTick.entrySet()){
-					if(e.getValue()<=currentTick){
-						ordersFinalTick.remove(e.getKey());
-						log("tick #" + currentTick + ": " + this.getName() + " finished manufacturing " 
-					+ e.getKey().getAmount() + " pairs of " + e.getKey().getType() + ". Shipping theme ( with a receipt of course ) ...");
-						Receipt rec = new Receipt(this.getName(), "Store", e.getKey().getType(), false, currentTick, currentTick-e.getKey().getAmount()-1, e.getKey().getAmount());
-						this.complete(e.getKey(),rec);
-					}
-				}
-			}
+			manufacture();			
 		});
 		this.subscribeRequest(ManufacturingOrderRequest.class, manuReq->{		
-			log("tick #" + currentTick + ": " + this.getName() + 
-					" got a Manufacturing Order Request for " + manuReq.getAmount() + 
-					" pairs of " + manuReq.getType() + ". Adding to manufacturing schedule queue...");
-			if(totalTicks==0)
-				finalShoeTick=currentTick+1;
-			int finishTick = finalShoeTick+manuReq.getAmount();	
-			finalShoeTick=finishTick;
-			ordersFinalTick.put(manuReq, finishTick);
-			totalTicks+=manuReq.getAmount()+1;
+			manufacturingOrderRequestHandler(manuReq);
 		});
-
 		try {
 			barrier.await();
 		} catch (Exception e) {}
 	}
+	
+	private void manufacture(){
+		if(totalTicks>0){
+			totalTicks--;
+			for(Entry<ManufacturingOrderRequest,Integer> e : ordersFinalTick.entrySet()){
+				if(e.getValue()<=currentTick){
+					ordersFinalTick.remove(e.getKey());
+					log("tick #" + currentTick + ": " + this.getName() + " finished manufacturing " 
+				+ e.getKey().getAmount() + " pairs of " + e.getKey().getType() + ". Shipping theme ( with a receipt of course ) ...");
+					Receipt rec = new Receipt(this.getName(), "Store", e.getKey().getType(), false, currentTick, currentTick-e.getKey().getAmount()-1, e.getKey().getAmount());
+					this.complete(e.getKey(),rec);
+				}
+			}
+		}
+	}
+	
+	private void manufacturingOrderRequestHandler(ManufacturingOrderRequest manuReq){
+		log("tick #" + currentTick + ": " + this.getName() + 
+				" got a Manufacturing Order Request for " + manuReq.getAmount() + 
+				" pairs of " + manuReq.getType() + ". Adding to manufacturing schedule queue...");
+		if(totalTicks==0)
+			finalShoeTick=currentTick+1;
+		int finishTick = finalShoeTick+manuReq.getAmount();	
+		finalShoeTick=finishTick;
+		ordersFinalTick.put(manuReq, finishTick);
+		totalTicks+=manuReq.getAmount()+1;
+	}
+	
 	
 	/**
 	 * A setter which sets the shared {@link CyclicBarrier} to the {@code ShoeFactoryService}.

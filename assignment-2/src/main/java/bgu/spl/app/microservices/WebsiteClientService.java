@@ -1,10 +1,15 @@
-package bgu.spl.app;
+package bgu.spl.app.microservices;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
 
+import bgu.spl.app.messages.NewDiscountBroadcast;
+import bgu.spl.app.messages.PurchaseOrderRequest;
+import bgu.spl.app.messages.TerminationBroadcast;
+import bgu.spl.app.messages.TickBroadcast;
+import bgu.spl.app.schedules.PurchaseSchedule;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -68,19 +73,23 @@ public class WebsiteClientService extends MicroService {
 		
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
-			Iterator<PurchaseSchedule> it=purchaseSchedule.iterator();
-			PurchaseSchedule ps;
-			while(it.hasNext()){
-				ps=it.next();
-				if(ps.getTick()<=currentTick){
-					it.remove();
-					sendPurchseRequest(ps.getShoeType(),false);
-				}
-			}
+			readPurchaseSchedule();
 		});
 		try {
 			barrier.await();
 		} catch (Exception e) {}
+	}
+	
+	private void readPurchaseSchedule(){
+		Iterator<PurchaseSchedule> it=purchaseSchedule.iterator();
+		PurchaseSchedule ps;
+		while(it.hasNext()){
+			ps=it.next();
+			if(ps.getTick()<=currentTick){
+				it.remove();
+				sendPurchseRequest(ps.getShoeType(),false);
+			}
+		}
 	}
 	
 	private void sendPurchseRequest(String shoeType,boolean onlyDiscount){

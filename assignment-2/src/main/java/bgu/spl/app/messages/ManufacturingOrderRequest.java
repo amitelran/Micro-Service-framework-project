@@ -1,5 +1,6 @@
-package bgu.spl.app;
+package bgu.spl.app.messages;
 
+import bgu.spl.app.Receipt;
 import bgu.spl.mics.*;
 
 /**

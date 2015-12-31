@@ -1,9 +1,11 @@
-package bgu.spl.app;
+package bgu.spl.app.microservices;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CyclicBarrier;
 
+import bgu.spl.app.messages.TerminationBroadcast;
+import bgu.spl.app.messages.TickBroadcast;
 import bgu.spl.mics.MicroService;
 
 /**

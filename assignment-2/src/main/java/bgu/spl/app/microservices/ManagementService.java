@@ -1,4 +1,4 @@
-package bgu.spl.app;
+package bgu.spl.app.microservices;
 
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CyclicBarrier;
 
+import bgu.spl.app.NoShoesException;
+import bgu.spl.app.Store;
+import bgu.spl.app.messages.ManufacturingOrderRequest;
+import bgu.spl.app.messages.NewDiscountBroadcast;
+import bgu.spl.app.messages.RestockRequest;
+import bgu.spl.app.messages.TerminationBroadcast;
+import bgu.spl.app.messages.TickBroadcast;
+import bgu.spl.app.schedules.DiscountSchedule;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -21,11 +29,11 @@ public class ManagementService extends MicroService {
 	
 	/**
 	 * An object which holds the information of the {@code RestockRequests}, how many shoes have been ordered
-	 * in the request and how many has been reserved. Reserved means the if a client request a shoe of some type, a 
+	 * in the request and how many have been reserved. Reserved means the if a client request a shoe of some type, a 
 	 * manufacturing request has been sent and another client is requesting for same shoe, then, the
 	 * reserved calculates the delta between the amount requested from clients and the amount ordered 
-	 * for restock, in order to check whether a new {@code RestockRequest} is needed, or the amount requested for 
-	 * restock suffies the current amount requested from clients.
+	 * for re-stock, in order to check whether a new {@code RestockRequest} is needed, or the amount requested for 
+	 * re-stock is sufficient for the current amount requested from clients.
 	 */
 	private class orderedAndReserved{
 		int ordered;
@@ -69,7 +77,7 @@ public class ManagementService extends MicroService {
 	/**
 	 * Initializing the {@code ManagementService}. 
 	 * Subscribing the {@code ManagementService} to the {@code TickBroadcast}, in which it updates the
-	 * global hour and performing it actions as required according to the corresponding tick.
+	 * global hour and performing its actions as required according to the corresponding tick.
 	 * The iterator goes through all past {@code DiscountSchedule} and sends the requests according to the schedule.
 	 * Subscribing to {@code RestockRequests} and sending them to the factories for manufacturing or not.
 	 * Subscribing the {@code ManagementService} to {@code TerminationBroadcast}.
@@ -91,55 +99,65 @@ public class ManagementService extends MicroService {
 		
 		this.subscribeBroadcast(TickBroadcast.class, b->{
 			currentTick=b.getTick();
-			Iterator<DiscountSchedule> it=DiscountSchedule.iterator();
-			DiscountSchedule ds;
-			while(it.hasNext()){
-				ds=it.next();
-				if(ds.getTick()<=currentTick){
-					it.remove();
-					try {
-						Store.getInstance().addDiscount(ds.getShoeType(), ds.getAmount());
-						this.sendBroadcast(new NewDiscountBroadcast(ds.getShoeType(), ds.getAmount()));
-					} catch (NoShoesException e) {
-						log("tick #" + currentTick + ": no enough shoes of type " + e.getShoeType() + " in stock for discount (requested " + e.getAmount() + ")");
-					}
-				}
-			}
+			readDiscountSchedule();
 		});
 		
 		this.subscribeRequest(RestockRequest.class, req -> {
-			log("tick #"+currentTick+": "+this.getName() + " got a restock request");
-			synchronized(orders){
-				String shoe=req.getShoeType();
-				int amount=req.getAmount();
-				orderedAndReserved order = orders.get(shoe);
-				if( order==null || order.ordered-order.reserved<amount ){
-					int newOrderAmount=currentTick%5+1;
-					if(order==null){
-						order=new orderedAndReserved(newOrderAmount,1,req);
-						orders.put(shoe, order);
-					}
-					else{
-						order.ordered+=newOrderAmount;
-						order.reserved++;
-						order.requests.add(req);
-					}
-					boolean requestSucceeded=sendManufacturingRequest(shoe,newOrderAmount);
-					if(!requestSucceeded){
-						log("tick #"+currentTick+": no factories could manufacture new shoes :(");
-						this.complete(req, false);
-					}
-				}
-				else{
-					log("tick #"+currentTick+": " + req.getShoeType() + " already ordered from factory with sufficient amount");
-					order.requests.add(req);
-					order.reserved++;
-				}
-			}
+			restockRequestHandler(req);
 		});
 		try {
 			barrier.await();
 		} catch (Exception e) {}
+	}
+	
+	private void restockRequestHandler(RestockRequest req){
+		log("tick #"+currentTick+": "+this.getName() + " got a restock request");
+		synchronized(orders){
+			String shoe=req.getShoeType();
+			int amount=req.getAmount();
+			orderedAndReserved order = orders.get(shoe);
+			if( order==null || order.ordered-order.reserved<amount ){
+				int newOrderAmount=currentTick%5+1;
+				// no shoes of that type are waiting for manufacture
+				// --> create new queue
+				if(order==null){
+					order=new orderedAndReserved(newOrderAmount,1,req);
+					orders.put(shoe, order);
+				}
+				// else add to current queue
+				else{
+					order.ordered+=newOrderAmount;
+					order.reserved++;
+					order.requests.add(req);
+				}
+				if(!sendManufacturingRequest(shoe,newOrderAmount)){
+					log("tick #"+currentTick+": no factories available for manufacturing new shoes :(");
+					this.complete(req, false);
+				}
+			}
+			else{		// enough shoes have already been ordered
+				log("tick #"+currentTick+": " + req.getShoeType() + " already ordered from factory with sufficient amount");
+				order.requests.add(req);
+				order.reserved++;
+			}
+		}
+	}
+	
+	private void readDiscountSchedule(){
+		Iterator<DiscountSchedule> it=DiscountSchedule.iterator();
+		DiscountSchedule ds;
+		while(it.hasNext()){
+			ds=it.next();
+			if(ds.getTick()<=currentTick){
+				it.remove();
+				try {
+					Store.getInstance().addDiscount(ds.getShoeType(), ds.getAmount());
+					this.sendBroadcast(new NewDiscountBroadcast(ds.getShoeType(), ds.getAmount()));
+				} catch (NoShoesException e) {
+					log("tick #" + currentTick + ": no enough shoes of type " + e.getShoeType() + " in stock for discount (requested " + e.getAmount() + ")");
+				}
+			}
+		}
 	}
 	
 	
@@ -149,15 +167,18 @@ public class ManagementService extends MicroService {
 			synchronized(orders){				
 				if(res!=null){
 					Store.getInstance().file(res);
+					// enough shoes left for storage
 					if (res.getAmountSold()-orders.get(shoeType).reserved>=0)
 						Store.getInstance().add(shoeType, res.getAmountSold()-orders.get(shoeType).reserved);
 					
+					//iterate over manufactured amount and original requests
 					for(int i=0;i<res.getAmountSold()&&!orders.get(shoeType).requests.isEmpty();i++)
 						this.complete(orders.get(shoeType).requests.poll(), true);
 					
+					//remove shoe-type orders queue in a case its empty
 					if(orders.get(shoeType).requests.isEmpty())orders.remove(shoeType);
 				}
-				else{
+				else{			//res=null means no factories available
 					for(RestockRequest rr : orders.get(shoeType).requests){
 						this.complete(rr, false);
 					}

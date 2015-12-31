@@ -7,6 +7,12 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 
+import bgu.spl.app.microservices.ManagementService;
+import bgu.spl.app.microservices.SellingService;
+import bgu.spl.app.microservices.ShoeFactoryService;
+import bgu.spl.app.microservices.TimeService;
+import bgu.spl.app.microservices.WebsiteClientService;
+
 /**
  * Runner class which accepts a JSON input file as an argument, reads it and runs the program with the
  * given data from the input file.
