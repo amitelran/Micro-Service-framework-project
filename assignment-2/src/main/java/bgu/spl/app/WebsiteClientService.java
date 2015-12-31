@@ -91,7 +91,7 @@ public class WebsiteClientService extends MicroService {
 			}
 			else
 				log("tick #" + currentTick + ": " + this.getName()
-				+ " successfuly bought " +t.getType() + " from " + t.getSeller() + " (requested on tick# "+t.getRequestTick() +")");
+				+ " successfully bought " +t.getType() + " from " + t.getSeller() + " (requested on tick# "+t.getRequestTick() +")");
 			if(t!=null&&onlyDiscount==true)
 				wishList.remove(shoeType);
 		});
